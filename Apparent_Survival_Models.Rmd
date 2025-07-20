@@ -1,0 +1,174 @@
+---
+title: "Juvenile-Apparent-Survival"
+author: "Stacey Nerkowski"
+date: "8/13/2020"
+output: html_document
+---
+
+Predictor variable:  Detection (# of years detected)
+Explanatory variable:  Day (Day of the year), Weight, Homozygosity by locus, Columbia Basin ancestry, Sex (1 male/2 female), Year Released
+```{r}
+SURVIVE_KITS<-read.table("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/Chapter 1 - Genetic Monitoring/Apparent_Survival/SURVIVORRHSIP-INFO-KITS.txt", sep = "\t", header = TRUE)
+#Sex is a nominal variables that need to be labeled for the numerical outputs to be more easily understood
+source("./HighstatLibV10.R")
+SURVIVE_KITS$fSEX<-factor(SURVIVE_KITS$Sex, levels = c(1,2), labels = c("Male", "Female"))
+#Convert ancestry to %s
+SURVIVE_KITS$CB_ANCESTRY<-(SURVIVE_KITS$CB_ANCESTRY*100)
+SURVIVE_KITS
+#Check for missing data
+Kit.NA<-SURVIVE_KITS
+colSums(sapply(Kit.NA, FUN=is.na))
+```
+
+
+```{r}
+SURVIVE_KITS$Survival<-SURVIVE_KITS$Detections
+SURVIVE_KITS$Survival[SURVIVE_KITS$Detections>0]<-1
+SURVIVE_KITS$CWeight<-SURVIVE_KITS$Weight-mean(SURVIVE_KITS$Weight)
+SURVIVE_KITS
+```
+
+```{r}
+# Checking for Outliers
+op<-par(mfrow=c(4,2), mar=c(3,3,3,1))
+dotchart(SURVIVE_KITS$Release_Date, main = "Release Date", color = "darkblue")
+dotchart(SURVIVE_KITS$Weight, main = "Release Weight", color = "blueviolet")
+dotchart(SURVIVE_KITS$CB_ANCESTRY, main = "Columbia Basin Ancestry", color = "darkturquoise")
+dotchart(SURVIVE_KITS$HL, main = "Homozyogsity by Locus", color = "mediumslateblue")
+dotchart(SURVIVE_KITS$Survival, main = "Detection", color = "deeppink")
+dotchart(SURVIVE_KITS$RELEASE_YEAR, main = "Release Year", color = "cyan4")
+dotchart(SURVIVE_KITS$CWeight, main = "Weight-Centered", color = "purple4")
+par(op)
+```
+```{r}
+#Checking for Collinearity
+SURVIVE_KITS$L.Weight<-log10(SURVIVE_KITS$Weight)
+Z<-cbind(SURVIVE_KITS$Survival, SURVIVE_KITS$RELEASE_YEAR, SURVIVE_KITS$HL, SURVIVE_KITS$CB, SURVIVE_KITS$Release_Date, SURVIVE_KITS$CWeight, SURVIVE_KITS$Sex)
+colnames(Z)<-c("Survival", "RELEASE_YEAR", "HL", "CB", "Release_Date", "CWeight", "Sex")
+
+pairs(Z,lower.panel = panel.smooth2, upper.panel = panel.cor, diag.panel = panel.hist)
+corvif(Z)
+cor.test(SURVIVE_KITS$CWeight, SURVIVE_KITS$Release_Date)
+#All values are less than 3 indicating there is no collinearity between these variables but there appears to be a high correlation between CWeight and Release Day (r2=0.6)
+```
+
+```{r}
+#Checking for Relationships
+library(lattice)
+#No Log Transformation of Data
+coplot(CWeight~Release_Date|RELEASE_YEAR, data = SURVIVE_KITS)
+coplot(Survival~ Release_Date|RELEASE_YEAR, data = SURVIVE_KITS)
+coplot(Survival~ CWeight|Release_Date, data=SURVIVE_KITS)
+coplot(Survival~CB|Survival, data=SURVIVE_KITS)
+coplot(Survival~HL|Survival, data=SURVIVE_KITS)
+coplot(Survival~Sex|Survival, data=SURVIVE_KITS)
+xyplot(Survival~ Release_Date,data=SURVIVE_KITS, xlab = "L.Date", ylab = "Detected")
+xyplot(Survival~ CWeight,data=SURVIVE_KITS, xlab = "L.Weight", ylab = "Detected")
+xyplot(Survival~ CB,data=SURVIVE_KITS, xlab = "CB Ancestry", ylab = "Detected")
+xyplot(Survival~ HL,data=SURVIVE_KITS, xlab = "HL", ylab = "Detected")
+xyplot(Survival~ Sex,data=SURVIVE_KITS, xlab = "Sex", ylab = "Detected")
+xyplot(Survival~ RELEASE_YEAR,data=SURVIVE_KITS, xlab = "Year", ylab = "Detected")
+```
+
+
+
+```{r}
+pairs(SURVIVE_KITS)
+```
+
+```{r}
+
+Year<-SURVIVE_KITS$RELEASE_YEAR
+HL<-SURVIVE_KITS$HL
+Sex<-SURVIVE_KITS$fSEX
+CB<-SURVIVE_KITS$CB
+Day<-SURVIVE_KITS$Release_Date
+Weight<-SURVIVE_KITS$CWeight
+Survival<-SURVIVE_KITS$Survival
+
+```
+```{r}
+#binomial GLM
+#Kit.glm7 includes all 6 explanatory variables as well as an interaction of Release Day:Weight since we saw a correlation of over 0.6.  When including this, the interaction term is significant.
+Kit.glm7<-glm(Survival~Year+Sex+CB+Day+Weight+HL+Weight:Day, family = binomial)
+summary(Kit.glm7)
+drop1(Kit.glm7, test = "Chi")
+anova(Kit.glm7)
+```
+```{r}
+#Look for overdispersion
+#variance=(D)/(n-p)
+#Where D is equal to the Null Deviance above and (n-p) equals the df listed above.  If this ratio is about 1, then you can safely assume there is no overdispersion.  Less than 1 is possible underdispersion.
+(955.49/(1659))
+
+```
+```{r}
+#binomial GLM
+#Kit.glm6noI includes all 6 explanatory variables and no interaction of Release Day:Weight 
+Kit.glm6noI<-glm(Survival~Year+Sex+CB+Day+Weight+HL, family = binomial)
+summary(Kit.glm6noI)
+drop1(Kit.glm6noI, test = "Chi")
+#Here day is not significant (0.08) but we will begin removing the least significant explanatory variable and then rerun the model.
+```
+```{r}
+#binomial GLM
+#Kit.glm5 includes  5 explanatory variables.  Sex was removed since it was the least significant (p=0.87)
+Kit.glm5<-glm(Survival~Year+CB+Day+Weight+HL, family = binomial)
+summary(Kit.glm5)
+drop1(Kit.glm5, test = "Chi")
+#Columbia Basin ancestry is not significant so we will remove this variable on the next model and rerun.
+```
+```{r}
+#binomial GLM
+#Kit.glm4 includes  4 explanatory variables.  Sex and CB were removed since they were the least significant (Sex:p=0.87 and CB:p=0.36)
+Kit.glm4<-glm(Survival~Year+Day+Weight+HL, family = binomial)
+summary(Kit.glm4)
+drop1(Kit.glm4, test = "Chi")
+#Day is not significant so we will remove this variable on the next model and rerun.
+```
+```{r}
+#binomial GLM
+#Kit.glm3 includes  3 explanatory variables.  Sex, CB, and Day were removed since it they were the least significant (Sex:p=0.87 and CB:p=0.36 and Day:p=0.11)
+Kit.glm5<-glm(Survival~Year+Weight+HL, family = binomial)
+summary(Kit.glm5)
+drop1(Kit.glm5, test = "Chi")
+#All variables are now significant
+```
+
+```{r}
+#I want to double check the model that includes the interaction term CWeight:Release_Day.  
+Kit.glm5B<-glm(Survival~Year+Sex+CB+HL+Weight:Day, family = binomial)
+summary(Kit.glm5B)
+drop1(Kit.glm5B, test = "Chi")
+#Since Sex is the least significant, we will remove first
+```
+```{r}
+Kit.glm4B<-glm(Survival~Year+CB+HL+Weight:Day, family = binomial)
+summary(Kit.glm4B)
+drop1(Kit.glm4B, test = "Chi")
+```
+
+```{r}
+#CB Ancestry is still not significant, so it will be removed.
+Kit.glm3B<-glm(Survival~Year+HL+Weight:Day, family = binomial)
+summary(Kit.glm3B)
+drop1(Kit.glm3B, test = "Chi")
+plot(Kit.glm3B)
+anova(Kit.glm3B, test = "Chisq")
+#All explanatory variables are significant
+```
+```{r}
+#Run an anova on the 2 models
+Kit.glm0<-glm(Survival~1, family = binomial)
+summary(Kit.glm0)
+anova(Kit.glm0,Kit.glm3, test = "Chi")
+anova(Kit.glm0, Kit.glm3B, test = "Chi")
+anova(Kit.glm3, Kit.glm3B, test = "Chi")
+```
+```{r}
+#Model Validation
+#(1)Plot the Pearson or deviance residuals against the fitted values
+#(2)Plot the residuals vs each explanatory variable in the model (and also against the variables that were dropped)
+predict(Kit.glm3B, type = "link", se=TRUE)
+```
+

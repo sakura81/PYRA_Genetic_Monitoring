@@ -1,0 +1,590 @@
+---
+title: "DISPERSAL - CHAPTER 1"
+author: "Stacey Nerkowski"
+date: "11/4/2020"
+output: html_document
+---
+```{r}
+library(ggplot2)
+RLS.all<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/DISPERSEAL-RELEASED.csv", header = TRUE)
+DISP.WILD<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/DISPERSEAL-WILD.csv", header = TRUE)
+DISP.WILD$Sex<-as.factor(DISP.WILD$Sex)
+RLS.all$Sex<-as.factor(RLS.all$Sex)
+R_KITS.DISP<-subset(RLS.all, Age=="J")
+R_ADULTS.DISP<-subset(RLS.all, Age=="A")
+R_KITS_females<-subset(R_KITS.DISP, Sex=="F") #72 females
+R_KITS_males<-subset(R_KITS.DISP, Sex=="M") #61 males
+R_ADULTS_females<-subset(R_ADULTS.DISP, Sex=="F") #15 females
+R_ADULTS_males<-subset(R_ADULTS.DISP, Sex=="M") #12 males
+```
+```{r}
+#Dispersal of Released Rabbits
+summary(R_KITS.DISP)
+summary(R_ADULTS.DISP)
+#mean disperal of kits - 987.5m (11-3546m)
+#mean disperal of adults - 783.2 (69-2559m)
+wilcox.test(RLS.all$SnowFromRls~RLS.all$Age, alternative="less", na.rm=TRUE) #p-value 0.051 slightly significant difference between adults and juvenile dispersal.
+wilcox.test(RLS.all$SnowFromRls~RLS.all$Age, alternative="two.sided", na.rm=TRUE, paired=FALSE)
+wilcox.test(RLS.all$SnowFromRls~RLS.all$Age, alternative="two.sided", na.rm=TRUE)#p-value=0.10
+wilcox.test(R_KITS.DISP$SnowFromRls~R_KITS.DISP$Sex, alternative="less", na.rm=TRUE)#p-value 0.066 no significant difference between dispersal distance and sex in juveniles
+wilcox.test(R_KITS.DISP$SnowFromRls~R_KITS.DISP$Sex, alternative="two.sided", na.rm=TRUE)#p-value 0.1315
+summary(R_KITS_females) #mean dispersal for females was 859m (11-3009m)
+summary(R_KITS_males) #mean dispersal for males was 1139m (80-3546m)
+wilcox.test(R_ADULTS.DISP$SnowFromRls~R_ADULTS.DISP$Sex, alternative="less", na.rm=TRUE) #p-value 0.307, no difference between adult dispersal by sex
+wilcox.test(R_ADULTS.DISP$SnowFromRls~R_ADULTS.DISP$Sex, alternative="two.sided", na.rm=TRUE) #p-value 0.6141
+summary(R_ADULTS_females) #mean dispersal for females was 783.9m (69-2078)
+summary(R_ADULTS_males) #mean dispersal for males was 782.2m (236-2559)
+#boxplot(R_KITS.DISP$SnowFromRls~R_KITS.DISP$Sex)
+#boxplot(R_ADULTS.DISP$SnowFromRls~R_ADULTS.DISP$Sex)
+#boxplot(RLS.all$SnowFromRls~RLS.all$Age)
+SBF_disp_k_sex<-ggplot(R_KITS.DISP, aes(x=Sex, y=SnowFromRls))+geom_boxplot(color=c("darkblue","darkcyan"))+theme_classic()+scale_x_discrete(limits=c("F", "M"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Sex")+theme(axis.title = element_text(vjust=-5))
+SBF_disp_a_sex<-ggplot(R_ADULTS.DISP, aes(x=Sex, y=SnowFromRls))+geom_boxplot(color=c("darkblue","darkcyan"))+theme_classic()+scale_x_discrete(limits=c("F", "M"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Sex")+theme(axis.title = element_text(vjust=-5))
+SBF_disp_age<-ggplot(RLS.all, aes(x=Age, y=SnowFromRls))+geom_boxplot(aes(color=Age))+theme_classic()+scale_x_discrete(limits=c("J", "A"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Age")+theme(axis.title = element_text(vjust=-5))+theme(legend.position = "none")
+
+ggplot(R_KITS.DISP, aes(x=Year, y=SnowFromRls, group=Year))+geom_boxplot(aes(color=Year))+theme_classic()+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Dispersal Distance(m)", x="Year")+theme(axis.title = element_text(vjust=-5))
+
+```
+
+```{r}
+#Dispersal of Wild Rabbits to Next Season
+summary(DISP.WILD)
+#mean dispersal of wild rabbits from one year to the next is 495.3m (47.5-2025.3)
+wilcox.test(DISP.WILD$SnowFromPREV~DISP.WILD$Sex, alternative="two.sided", na.rm=TRUE) #p-value 0.047 between dispersal and sex, indicating one disperses farther than the other.
+WILD_males<-subset(DISP.WILD,Sex=="M")
+summary(WILD_males)
+#mean dispersal for male rabbits 804.4m (129-2025.3)
+WILD_females<-subset(DISP.WILD, Sex=="F")
+summary(WILD_females)
+#mean dispersal of female rabbits 351.1 (47.5-1781)
+#boxplot(DISP.WILD$SnowFromPREV~DISP.WILD$Sex)
+SBF_disp_2<-ggplot(DISP.WILD, aes(x=Sex, y=SnowFromPREV))+geom_boxplot(color=c("darkblue","darkcyan"))+theme_classic()+scale_x_discrete(limits=c("F", "M"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Sex")+theme(axis.title = element_text(vjust=-5))
+wilcox.test(RLS.all$SnowFromRls,DISP.WILD$SnowFromPREV, alternative = "two.sided")#significant difference between dispersal distances of wild rabbits from year to year vs released. p-value=0.00031
+summary(RLS.all) #average dispersal distance for whole data set 953m (11-3546m)
+#significantly different from 495.3m of wild rabbits
+wilcox.test(R_KITS.DISP$SnowFromRls, DISP.WILD$SnowFromPREV)
+#Significant difference in kit dispersal of released rabbits and wild rabbits.  p-value = 0.00019
+wilcox.test(R_ADULTS.DISP$SnowFromRls, DISP.WILD$SnowFromPREV)
+#p-value=0.029 for adults released and wild rabbit dispersal
+SBF_disp_2
+```
+```{r}
+#Rabbits per burrow system
+rab_bur<-c(0.87,0.75,0.63,1,0.92,0.96,0.56,0.65,0.33)
+mean(rab_bur)
+summary(rab_bur)
+sd(rab_bur)
+# Desnity Estimates
+dens=c(0.03,0.02,.05,.01,.03,.09,.03,.08,.004)
+mean(dens)
+sd(dens)
+```
+
+```{r}
+#Sex ratio comparison
+library(rcompanion)
+library(RVAideMemoire)
+Demo<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Sex_Nm.csv", header = TRUE)
+MF_ratio<-as.matrix(read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Sex.csv", header = TRUE, row.names = 1))
+#wilcox.test(MF_ratio, alternative = "two.sided")
+PT=pairwiseNominalIndependence(MF_ratio, fisher = TRUE, gtest = FALSE,chisq = FALSE, digits = 3)
+PT
+```
+
+```{r}
+#Ho comparison in SBF
+Ho<-c(0.76,0.81,0.81,0.75,0.7,0.84,0.76,0.62,0.64)
+mean(Ho)
+sd(Ho)
+He<-c(0.80,0.79,0.8,0.8,0.8,0.82,0.79,0.79,0.72)
+mean(He)
+sd(He)
+summary(He)
+summary(Ho)
+```
+
+```{r}
+SBF_ancestry<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Ancestry_Years_SBF.csv", header = TRUE)
+SBF_2012<-subset(SBF_ancestry,Year=="2012")
+SBF_2013<-subset(SBF_ancestry,Year=="2013")
+SBF_2014<-subset(SBF_ancestry,Year=="2014")
+SBF_2015<-subset(SBF_ancestry,Year=="2015")
+SBF_2016<-subset(SBF_ancestry,Year=="2016")
+SBF_2017<-subset(SBF_ancestry,Year=="2017")
+SBF_2018<-subset(SBF_ancestry,Year=="2018")
+SBF_2018S<-subset(SBF_ancestry,Year=="2018S")
+SBF_2019<-subset(SBF_ancestry,Year=="2019")
+```
+
+```{r}
+#CB Ancestry Estimates
+library(ggplot2)
+summary(SBF_2012)
+summary(SBF_2013)
+summary(SBF_2014)
+summary(SBF_2015)
+summary(SBF_2016)
+summary(SBF_2017)
+summary(SBF_2018)
+summary(SBF_2018S)
+summary(SBF_2019)
+boxplot(SBF_ancestry$CB~SBF_ancestry$Year, xlab = "YEAR", ylab = "CB Ancestry (%)")
+Ancestry_SBF=ggplot(SBF_ancestry, aes(x=Year, y=CB))+geom_boxplot(color="cyan4")+theme_classic()+scale_x_discrete(limits=c("2012","2013", "2014", "2015", "2016", "2017","2018S","2018","2019"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="CB Ancestry (%)", x="Year")+theme(axis.title = element_text(vjust=-5))
+pairwise.perm.t.test(SBF_ancestry$CB, SBF_ancestry$Year)
+#significant difference in 2017 CB ancestry with 2013, 2014, 2015, 2016, 2018, 2018S
+#2016 significant between 2017, 18, 18S, 19
+sd(SBF_2012$CB)
+```
+```{r}
+DISP.CB_BH<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/DISPERSEAL-BH_CB.csv", header = TRUE)
+DISP.CB_BH$Sex<-as.factor(DISP.CB_BH$Sex)
+BH_disp<-subset(DISP.CB_BH, SITE=="BH")
+summary(BH_disp) #mean dispersal 178.4 (14-454.3)
+BH_disp_females<-subset(BH_disp, Sex=="F")
+BH_disp_males<-subset(BH_disp, Sex=="M")
+summary(BH_disp_females) #mean dispersal 100.4m (14-166)
+summary(BH_disp_males) #mean dispersal 221.8m (36-454.3)
+CB_disp<-subset(DISP.CB_BH, SITE=="CB")
+CB_disp_females<-subset(CB_disp, Sex=="F")
+CB_disp_males<-subset(CB_disp, Sex=="M")
+summary(CB_disp) #mean dispersal 286.4 (37-748)
+wilcox.test(BH_disp$Distance~BH_disp$Sex, alternative="two.sided")#pvalue 0.15
+wilcox.test(CB_disp$Distance~CB_disp$Sex,alternative="two.sided")#pvalue 0.32
+t.test(CB_disp$Distance, BH_disp$Distance, paired = FALSE)
+summary(CB_disp_females) #mean dispersal distance 235.6 (37-536.5m)
+summary(CB_disp_males)#mean dispersal distance 375.4m (173.7-748m)
+```
+```{r}
+#boxplot(BH_disp$Distance~BH_disp$Sex, xlab = "SEX", ylab = "Dispersal Distance (m)")
+#boxplot(CB_disp$Distance~CB_disp$Sex, xlab = "SEX", ylab = "Dispersal Distance (m)")
+BH_disp1<-ggplot(BH_disp, aes(x=Sex, y=Distance))+geom_boxplot(color=c("darkblue","darkcyan"))+theme_classic()+scale_x_discrete(limits=c("F", "M"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Sex")+theme(axis.title = element_text(vjust=-5))
+CB_disp2<-ggplot(CB_disp, aes(x=Sex, y=Distance))+geom_boxplot(color=c("darkblue","darkcyan"))+theme_classic()+scale_x_discrete(limits=c("F", "M"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Sex")+theme(axis.title = element_text(vjust=-5))
+BH_disp1
+CB_disp2
+
+```
+
+```{r}
+#Ancestry Analysis in CB and BH
+library(ggplot2)
+library(rcompanion)
+library(RVAideMemoire)
+Ancestry_CB.BH<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Ancestry-BH_CB.csv", header = TRUE)
+Ancestry_CB.BH$Year<-as.factor(Ancestry_CB.BH$Year)
+CB_Anc<-subset(Ancestry_CB.BH, Site=="CB")
+boxplot(CB_Anc$CB~CB_Anc$Year, xlab = "Year", ylab = "CB Ancestry")
+ggplot(CB_Anc, aes(x=Year, y=CB))+geom_boxplot(color="purple", fill="purple")+theme_classic()+scale_x_discrete(limits=c("2018","2019S","2019"))
+BH_Anc<-subset(Ancestry_CB.BH, Site=="BH")
+ggplot(BH_Anc, aes(x=Year, y=CB))+geom_boxplot(color="purple", fill="purple")+theme_classic()+scale_x_discrete(limits=c("2017","2018","2019S","2019"))
+BH17_Anc<-subset(BH_Anc, Year=="2017")
+BH18_Anc<-subset(BH_Anc, Year=="2018")
+BH19_Anc<-subset(BH_Anc, Year=="2019")
+BH19S_Anc<-subset(BH_Anc, Year=="2019S")
+pairwise.perm.t.test(BH_Anc$CB, BH_Anc$Year)
+summary(BH_Anc)
+CB18_Anc<-subset(CB_Anc, Year=="2018")
+CB19_Anc<-subset(CB_Anc, Year=="2019")
+CB19S_Anc<-subset(CB_Anc, Year=="2019S")
+summary(CB_Anc)
+t.test(CB18_Anc$CB,CB19S_Anc$CB, paired=FALSE)#pvalue 0.01
+t.test(CB18_Anc$CB,CB19_Anc$CB, paired=FALSE)#pvalue 0.01
+t.test(CB19S_Anc$CB,CB19_Anc$CB, paired=FALSE)#pvalue 0.30
+
+
+```
+```{r}
+#Sex ratio comparison - BH
+library(rcompanion)
+library(RVAideMemoire)
+#BH_Sex<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/BH_sex.csv", header = TRUE)
+MF_ratio_BH<-as.matrix(read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/BH_sex.csv", header = TRUE, row.names = 1))
+#wilcox.test(MF_ratio_BH, alternative = "two.sided")
+#PT_BH=pairwiseNominalIndependence(MF_ratio_BH, fisher = TRUE, gtest = FALSE,chisq = FALSE, digits = 3)
+#PT_BH
+prop.test(x=c(2,1,6,2), n=c(5,3,7,5), alternative = "two.sided")
+```
+```{r}
+#Ho comparison in BH and CHB
+BH_Ho<-c(0.78,0.75,0.80,0.57)
+mean(BH_Ho)
+sd(BH_Ho)
+summary(BH_Ho)
+t.test(summary_BH2017$Hobs,summary_BH2018$Hobs, paired = FALSE)#pvalue=0.68 (2017, 2018)
+t.test(summary_BH2018$Hobs,summary_BHS2019$Hobs, paired = FALSE)#pvalue=0.50 (2018, 2019S)
+t.test(summary_BHS2019$Hobs,summary_BHW2019$Hobs, paired = FALSE)#pvalue=0.002 (2019S, 2019)
+t.test(summary_BH2018$Hobs, summary_BHW2019$Hobs, paired = FALSE)
+CB_Ho<-c(0.77,0.73,0.74)
+mean(CB_Ho)
+sd(CB_Ho)
+t.test(summary_CB2018$Hobs,summary_CBS2019$Hobs, paired = FALSE)#pvalue=0.50 (2018, 2019S)
+t.test(summary_CBS2019$Hobs,summary_CBW2019$Hobs, paired = FALSE)#pvalue=0.002 (2019S, 2019)
+t.test(summary_CB2018$Hobs, summary_CBW2019$Hobs, paired = FALSE)
+```
+
+```{r}
+#CB Ancestry in BH
+library(ggplot2)
+Ancestry_RP<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Ancestry_RP.csv", header = TRUE)
+Ancestry_RP$Year<-as.factor(Ancestry_RP$Year)
+BHR_anc<-subset(Ancestry_RP, Site=="BH")
+CBR_anc<-subset(Ancestry_RP, Site=="CB")
+BHR18_anc<-subset(BHR_anc, Year=="2018")
+BHR19_anc<-subset(BHR_anc, Year=="2019")
+CBR18_anc<-subset(CBR_anc, Year=="2018")
+CBR19_anc<-subset(CBR_anc, Year=="2019")
+BH18_1<-subset(BHR18_anc, RP=="BH1")
+BH18_2<-subset(BHR18_anc, RP=="BH2")
+BH19_1<-subset(BHR19_anc, RP=="BH1")
+BH19_2<-subset(BHR19_anc, RP=="BH2")
+boxplot(BHR_anc$CB~BHR_anc$Year, xlab = "Year", ylab = "CB Ancestry")
+boxplot(CBR_anc$CB~CBR_anc$Year, xlab = "Year", ylab = "CB Ancestry")
+t.test(BHR18_anc$CB, BHR19_anc$CB, paired = FALSE)#pvalue 0.09
+t.test(CBR18_anc$CB, CBR19_anc$CB, paired = FALSE)#pvalue 7.45e-18
+summary(BHR18_anc)
+summary(BHR19_anc)
+summary(CBR18_anc)
+summary(CBR19_anc)
+ggplot(BHR_anc, aes(x=Year, y=CB))+geom_boxplot(aes(fill=Year))+theme_classic()+labs(y="CB Ancestry (%)", x="Year")+scale_x_discrete(limits=c("2018","2019"))
+ggplot(CBR_anc, aes(x=Year, y=CB))+geom_boxplot(aes(fill=Year))+theme_classic()+scale_x_discrete(limits=c("2018","2019"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="CB Ancestry (%)", x="Year")+theme(axis.title = element_text(vjust=-5))
+t.test(BH18_1$CB, BH18_2$CB)#pvalue=0.23
+t.test(BH19_1$CB, BH19_2$CB)#pvalue=0.55
+CB18_1<-subset(CBR18_anc, RP=="CB1")
+CB18_2<-subset(CBR18_anc, RP=="CB2")
+CB18_3<-subset(CBR18_anc, RP=="CB3")
+CB19_1<-subset(CBR19_anc, RP=="CB1")
+CB19_2<-subset(CBR19_anc, RP=="CB2")
+CB19_3<-subset(CBR19_anc, RP=="CB3")
+t.test(CB18_1$CB, CB18_2$CB)#pvalue=0.07
+t.test(CB19_1$CB, CB19_2$CB)#pvalue=0.50
+t.test(CB19_1$CB, CB19_3$CB)#pvalue=0.86
+t.test(CB19_2$CB, CB19_3$CB)#pvalue=0.56
+
+```
+```{r}
+Ancestry_encl<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Ancestry_AllYears_Enclosures.csv", header = TRUE)
+Ancestry_encl$Year<-as.factor(Ancestry_encl$Year)
+Ancestry_encl$Enclosure<-as.factor(Ancestry_encl$Enclosure)
+Anc_12<-subset(Ancestry_encl,Year=="2012")
+Anc_13<-subset(Ancestry_encl,Year=="2013")
+Anc_14<-subset(Ancestry_encl,Year=="2014")
+Anc_15<-subset(Ancestry_encl,Year=="2015")
+Anc_16<-subset(Ancestry_encl,Year=="2016")
+Anc_17<-subset(Ancestry_encl,Year=="2017")
+Anc_18<-subset(Ancestry_encl,Year=="2018")
+Anc_19<-subset(Ancestry_encl,Year=="2019")
+Anc_LE<-subset(Ancestry_encl, Enclosure=="LE")
+Anc_SE<-subset(Ancestry_encl, Enclosure=="SE")
+Anc_DE<-subset(Ancestry_encl, Enclosure=="DE")
+Anc_BE<-subset(Ancestry_encl, Enclosure=="BE")
+Anc_B2E<-subset(Ancestry_encl, Enclosure=="B2E")
+```
+
+```{r}
+#LE Enclosure from Year to Year
+ALE12<-subset(Anc_LE, Year=="2012")
+ALE13<-subset(Anc_LE, Year=="2013")
+ALE14<-subset(Anc_LE, Year=="2014")
+ALE15<-subset(Anc_LE, Year=="2015")
+ALE16<-subset(Anc_LE, Year=="2016")
+ALE17<-subset(Anc_LE, Year=="2017")
+ALE18<-subset(Anc_LE, Year=="2018")
+t.test(ALE12$CB, ALE13$CB, paired = FALSE) #p-value 6.76e-12
+t.test(ALE13$CB, ALE14$CB, paired = FALSE) #p-value 0.41
+t.test(ALE14$CB, ALE15$CB, paired = FALSE) #p-value 0.03
+t.test(ALE15$CB, ALE16$CB, paired = FALSE) #p-value 0.12
+t.test(ALE16$CB, ALE17$CB, paired = FALSE) #p-value 0.66
+t.test(ALE17$CB, ALE18$CB, paired = FALSE) #p-value 0.005
+summary(Anc_LE)
+summary(ALE12)
+summary(ALE13)
+summary(ALE14)
+summary(ALE15)
+summary(ALE16)
+summary(ALE17)
+summary(ALE18)
+
+```
+```{r}
+#SE Enclosure from Year to Year
+ASE12<-subset(Anc_SE, Year=="2012")
+ASE13<-subset(Anc_SE, Year=="2013")
+ASE14<-subset(Anc_SE, Year=="2014")
+ASE15<-subset(Anc_SE, Year=="2015")
+ASE16<-subset(Anc_SE, Year=="2016")
+ASE17<-subset(Anc_SE, Year=="2017")
+ASE18<-subset(Anc_SE, Year=="2018")
+t.test(ASE12$CB, ASE13$CB, paired = FALSE) #p-value 0.0006
+t.test(ASE13$CB, ASE14$CB, paired = FALSE) #p-value 0.0007
+t.test(ASE14$CB, ASE15$CB, paired = FALSE) #p-value 0.49
+t.test(ASE15$CB, ASE17$CB, paired = FALSE) #p-value 0.31
+t.test(ASE17$CB, ASE18$CB, paired = FALSE) #p-value 0.07
+summary(Anc_SE)
+summary(ASE12)
+summary(ASE13)
+summary(ASE14)
+summary(ASE15)
+summary(ASE16)
+summary(ASE17)
+summary(ASE18)
+```
+```{r}
+#DE Enclosure from Year to Year
+ADE13<-subset(Anc_DE, Year=="2013")
+ADE14<-subset(Anc_DE, Year=="2014")
+ADE15<-subset(Anc_DE, Year=="2015")
+ADE16<-subset(Anc_DE, Year=="2016")
+ADE17<-subset(Anc_DE, Year=="2017")
+ADE18<-subset(Anc_DE, Year=="2018")
+ADE19<-subset(Anc_DE, Year=="2019")
+t.test(ADE13$CB, ADE14$CB, paired = FALSE) #p-value 1.85E-14
+t.test(ADE14$CB, ADE16$CB, paired = FALSE) #p-value 6.11E-6
+t.test(ADE16$CB, ADE17$CB, paired = FALSE) #p-value 0.03
+t.test(ADE17$CB, ADE19$CB, paired = FALSE) #p-value 0.004
+
+summary(Anc_DE)
+summary(ADE13)
+summary(ADE14)
+summary(ADE15)
+summary(ADE16)
+summary(ADE17)
+summary(ADE18)
+summary(ADE19)
+```
+
+```{r}
+#BE Enclosure from Year to Year
+ABE14<-subset(Anc_BE, Year=="2014")
+ABE15<-subset(Anc_BE, Year=="2015")
+ABE16<-subset(Anc_BE, Year=="2016")
+ABE17<-subset(Anc_BE, Year=="2017")
+t.test(ABE14$CB, ABE15$CB, paired = FALSE) #p-value 0.0005
+t.test(ABE15$CB, ABE16$CB, paired = FALSE) #p-value 0.60
+t.test(ABE16$CB, ABE17$CB, paired = FALSE) #p-value 0.22
+
+summary(Anc_BE)
+summary(ABE14)
+summary(ABE15)
+summary(ABE16)
+summary(ABE17)
+```
+
+```{r}
+#B2E Enclosure from year to year
+AB2E17<-subset(Anc_B2E, Year=="2017")
+AB2E18<-subset(Anc_B2E, Year=="2018")
+AB2E19<-subset(Anc_B2E, Year=="2019")
+t.test(AB2E17$CB, AB2E18$CB, paired = FALSE) #p-value 0.05
+t.test(AB2E18$CB, AB2E19$CB, paired = FALSE) #p-value 0.07
+
+summary(Anc_B2E)
+summary(AB2E17)
+summary(AB2E18)
+summary(AB2E19)
+```
+
+```{r}
+#Apparent Survival RP
+mean(c(12.5,50,100))#CB Mean 18
+sd(c(12.5,50,100))
+mean(c(40,20))#BH Mean 18
+sd(c(40,20))
+mean(c(71.43,25,50))#Mean CHB19
+sd(c(71.43,25,50))
+mean(c(28.57,42.86))#mean BH19
+sd(c(28.57,42.86))
+mean(c(12.5,50,100,40,20,71.43,25,50,28.57,42.86))
+sd(c(12.5,50,100,40,20,71.43,25,50,28.57,42.86))
+mean(c(12.5,50,100,40,20))
+6/16 #CHB18
+10/21 #CHB19
+(6+10)/(16+21) #Overall CHB
+3/10 #BH18
+5/14 #BH19
+(3+5)/(10+14)
+(6+3+10+5)/(16+10+21+14) #RP survival
+hard_soft1<-read.csv(as.matrix("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Hard_vs_soft.csv"), header = TRUE, row.names = 1)
+hard_soft2<-read.csv(as.matrix("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Hard_vs_soft2.csv"), header = TRUE, row.names = 1)
+```
+
+```{r}
+library(RVAideMemoire)
+library(rcompanion)
+fisher.test(hard_soft1, alternative = "two.sided")
+fisher.test(hard_soft2, alternative = "two.sided")
+```
+```{r}
+library(ggpubr)
+DISP_FIGURE<-ggarrange(SBF_disp_age, SBF_disp_k_sex, SBF_disp_a_sex, SBF_disp_2,BH_disp1, CB_disp2,Hard_vs_soft_disp, 
+                       labels = "auto", 
+                       common.legend = FALSE, 
+                       ncol = 2, 
+                       nrow = 4,
+                       hjust = 0.1,
+                       font.label=list(size=10))
+DISP_FIGURE
+```
+```{r}
+RLS_HardvsSoft<-read.csv("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/DISPERSEAL-HardvsSoft.csv", header = TRUE)
+Hard_vs_soft_disp<-ggplot(RLS_HardvsSoft, aes(x=SITE, y=Distance))+geom_boxplot(color=c("royalblue1","royalblue1","purple4"))+theme_classic()+scale_x_discrete(limits=c("BH", "CHB" ,"SBF"))+theme(axis.text = element_text(size = (10), face = "bold"))+labs(y="Distance(m)", x="Location")+theme(axis.title = element_text(vjust=-5))
+Hard_vs_soft_disp
+mean(BH_disp$Distance)
+sd(BH_disp$Distance)
+mean(CB_disp$Distance)
+sd(CB_disp$Distance)
+```
+```{r}
+library(ggplot2)
+library(ggpubr)
+ggsave(filename = "D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Disp_AGE.png", 
+       plot = SBF_disp_age,
+       width = 8, 
+       height = 4,
+       dpi = 600)
+#ggsave(filename = "D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/HardvsSoft.png", 
+       #plot = Hard_vs_soft_disp,
+       #width = 8, 
+       #height = 4,
+       #dpi = 600)
+ggsave(filename ="D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/CHAPTER 1 - FINAL/Ancestry_SBF.png", 
+       plot = Ancestry_SBF,
+       width = 8, 
+       height = 4,
+       dpi = 600)
+```
+
+```{r}
+AR_SBF=c(5.22,5.15,5.13,5.29,5.16,5.35,5,4.95,4.67)
+mean(AR_SBF)
+sd(AR_SBF)
+CB_SBF=SBF_ancestry$CB
+NV_SBF=SBF_ancestry$NV
+WY_SBF=SBF_ancestry$WY
+UT_SBF=SBF_ancestry$UT
+mean(CB_SBF)
+sd(CB_SBF)
+mean(NV_SBF)
+sd(NV_SBF)
+mean(WY_SBF)
+sd(WY_SBF)
+mean(UT_SBF)
+sd(UT_SBF)
+indID_SBF=c(78,46,76,20,52,56,56,73,83)
+mean(indID_SBF)
+sd(indID_SBF)
+```
+```{r}
+#BH Info
+spID_BH=c(80,85,93)
+indiD_BH=c(78,88,67,92)
+mean(spID_BH)
+sd(spID_BH)
+mean(indiD_BH)
+sd(indiD_BH)
+bur_BH=c(0.42,0.43,0.7,0.5)
+dens_BH=c(0.06,0.04,0.09,0.04)
+mean(bur_BH)
+sd(bur_BH)
+mean(dens_BH)
+sd(dens_BH)
+AR_BH=c(5.41,3.82,3.71)
+mean(AR_BH)
+sd(AR_BH)
+mean(BH_Anc$CB)
+sd(BH_Anc$CB)
+mean(BH_Anc$NV)
+sd(BH_Anc$NV)
+mean(BH_Anc$WY)
+sd(BH_Anc$WY)
+mean(BH_Anc$UT)
+sd(BH_Anc$UT)
+```
+
+```{r}
+#CHB Info
+spID_CHB=c(95,80,97)
+indiD_CHB=c(84,93,81)
+mean(spID_CHB)
+sd(spID_CHB)
+mean(indiD_CHB)
+sd(indiD_CHB)
+bur_CHB=c(0.45,0.5,0.35)
+dens_CHB=c(0.01,0.01,0.01)
+mean(bur_CHB)
+sd(bur_CHB)
+mean(dens_CHB)
+sd(dens_CHB)
+AR_CHB=c(4.65,4.59,3.69)
+mean(AR_CHB)
+sd(AR_CHB)
+bur_CHB_winter=c(0.45,0.35)
+mean(bur_CHB_winter)
+sd(bur_CHB_winter)
+```
+```{r}
+mean(CB_Anc$CB)
+sd(CB_Anc$CB)
+mean(CB_Anc$NV)
+sd(CB_Anc$NV)
+mean(CB_Anc$WY)
+sd(CB_Anc$WY)
+mean(CB_Anc$UT)
+sd(CB_Anc$UT)
+
+```
+```{r}
+mean(Anc_LE$CB)
+sd(Anc_LE$CB)
+mean(Anc_LE$NV)
+sd(Anc_LE$NV)
+mean(Anc_LE$WY)
+sd(Anc_LE$WY)
+mean(Anc_LE$UT)
+sd(Anc_LE$UT)
+```
+```{r}
+mean(Anc_SE$CB)
+sd(Anc_SE$CB)
+mean(Anc_SE$NV)
+sd(Anc_SE$NV)
+mean(Anc_SE$WY)
+sd(Anc_SE$WY)
+mean(Anc_SE$UT)
+sd(Anc_SE$UT)
+```
+```{r}
+mean(Anc_DE$CB)
+sd(Anc_DE$CB)
+mean(Anc_DE$NV)
+sd(Anc_DE$NV)
+mean(Anc_DE$WY)
+sd(Anc_DE$WY)
+mean(Anc_DE$UT)
+sd(Anc_DE$UT)
+```
+```{r}
+mean(Anc_BE$CB)
+sd(Anc_BE$CB)
+mean(Anc_BE$NV)
+sd(Anc_BE$NV)
+mean(Anc_BE$WY)
+sd(Anc_BE$WY)
+mean(Anc_BE$UT)
+sd(Anc_BE$UT)
+```
+```{r}
+mean(Anc_B2E$CB)
+sd(Anc_B2E$CB)
+mean(Anc_B2E$NV)
+sd(Anc_B2E$NV)
+mean(Anc_B2E$WY)
+sd(Anc_B2E$WY)
+mean(Anc_B2E$UT)
+sd(Anc_B2E$UT)
+```
+```{r}
+mean(c(39,13,10,0.1,8.5))
+sd(c(39,13,10,0.1,8.5))
+```
+```{r}
+
+```
+
