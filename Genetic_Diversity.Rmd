@@ -1,0 +1,1099 @@
+---
+title: "PYRA_hierfstat"
+output: html_document
+---
+
+```{r}
+library("adegenet")
+library("hierfstat")
+library("PopGenReport")
+setwd("../Genetic Monitoring Info - Chapter 1/")
+PYRA.genidW12<-read.genepop("./Winter 2012-13.gen")
+PYRA.genidW13<-read.genepop("./Winter 2013-14.gen")
+PYRA.genidW14<-read.genepop("./Winter 2014-15.gen")
+PYRA.genidW15<-read.genepop("./Winter 2015-16.gen")
+PYRA.genidW16<-read.genepop("./Winter 2016-17.gen")
+PYRA.genidW17<-read.genepop("./Winter 2017-18.gen")
+PYRA.genidW18<-read.genepop("./Winter 2018-19.gen")
+PYRA.genidW19<-read.genepop("./W2019-2020.gen")
+PYRA.genidS18<-read.genepop("./Summer 2018.gen")
+PYRA.All.genid<-read.genepop("./Genepop_AllYears_UPDATED.gen")
+PYRA.genidW18BH<-read.genepop("./W2018-BH.gen")
+PYRA.genidW18CB<-read.genepop("./W2018-CB.gen")
+PYRA.genidW17BH<-read.genepop("./BH2017.GEN")
+PYRA.genidS19BH<-read.genepop("./S2019BH.gen")
+PYRA.genidS19CB<-read.genepop("./S2019CB.gen")
+PYRA.genidW19BH<-read.genepop("./BH2019.gen")
+PYRA.genidW19CB<-read.genepop("./CB2019.gen")
+PYRA.genidLE12<-read.genepop("./LE2012.gen")
+PYRA.genidSE12<-read.genepop("./SE2012.gen")
+PYRA.genidLE13<-read.genepop("./LE2013.gen")
+PYRA.genidSE13<-read.genepop("./SE2013.gen")
+PYRA.genidDE13<-read.genepop("./DE2013.gen")
+PYRA.genidDE19<-read.genepop("./DE2019.gen")
+PYRA.genidB2E19<-read.genepop("./B2E2019.gen")
+PYRA.genidLE2014<-read.genepop("./LE2014.gen")
+PYRA.genidSE2014<-read.genepop("./SE2014.gen")
+PYRA.genidDE2014<-read.genepop("./DE2014.gen")
+PYRA.genidBE2014<-read.genepop("./BE2014.gen")
+PYRA.genidBE2015<-read.genepop("./BE2015.gen")
+PYRA.genidLE2015<-read.genepop("./LE2015.gen")
+PYRA.genidSE2015<-read.genepop("./SE2015.gen")
+PYRA.genidLE2016<-read.genepop("./LE2016.gen")
+PYRA.genidDE2016<-read.genepop("./DE2016.gen")
+PYRA.genidBE2016<-read.genepop("./BE2016.gen")
+PYRA.genidLE2017<-read.genepop("./LE2017.gen")
+PYRA.genidSE2017<-read.genepop("./SE2017.gen")
+PYRA.genidBE2017<-read.genepop("./BE2017.gen")
+PYRA.genidDE2017<-read.genepop("./DE2017.gen")
+PYRA.genidB2E2017<-read.genepop("./B2E2017.gen")
+PYRA.genidB2E2018<-read.genepop("./B2E2018.gen")
+PYRA.genidLE2018<-read.genepop("./LE2018.gen")
+PYRA.genidSE2018<-read.genepop("./SE2018.gen")
+PYRA.genidBHR2018<-read.genepop("./BHR_2018.gen")
+PYRA.genidBHR2019<-read.genepop("./BHR_2019.gen")
+PYRA.genidCBR2018<-read.genepop("./CBR_2018.gen")
+PYRA.genidCBR2019<-read.genepop("./CBR_2019.gen")
+PYRA.genidBH12018<-read.genepop("./BH1_2018.gen")
+PYRA.genidBH12019<-read.genepop("./BH1_2019.gen")
+PYRA.genidBH22018<-read.genepop("./BH2_2018.gen")
+PYRA.genidBH22019<-read.genepop("./BH2_2019.gen")
+PYRA.genidCB12018<-read.genepop("./CB1_2018.gen")
+PYRA.genidCB12019<-read.genepop("./CB1_2019.gen")
+PYRA.genidCB22018<-read.genepop("./CB2_2018.gen")
+PYRA.genidCB22019<-read.genepop("./CB2_2019.gen")
+PYRA.genidCB32019<-read.genepop("./CB3_2019.gen")
+
+```
+
+
+```{r}
+
+PYRA.fstatW12<-genind2hierfstat(PYRA.genidW12)
+PYRA.fstatW13<-genind2hierfstat(PYRA.genidW13)
+PYRA.fstatW14<-genind2hierfstat(PYRA.genidW14)
+PYRA.fstatW15<-genind2hierfstat(PYRA.genidW15)
+PYRA.fstatW16<-genind2hierfstat(PYRA.genidW16)
+PYRA.fstatW17<-genind2hierfstat(PYRA.genidW17)
+PYRA.fstatW18<-genind2hierfstat(PYRA.genidW18)
+PYRA.fstatW19<-genind2hierfstat(PYRA.genidW19)
+PYRA.fstatS18<-genind2hierfstat(PYRA.genidS18)
+PYRA.fstat_All<-genind2hierfstat(PYRA.All.genid)
+PYRA.fstatW18BH<-genind2hierfstat(PYRA.genidW18BH)
+PYRA.fstatW18CB<-genind2hierfstat(PYRA.genidW18CB)
+PYRA.fstatW17BH<-genind2hierfstat(PYRA.genidW17BH)
+PYRA.fstatS19BH<-genind2hierfstat(PYRA.genidS19BH)
+PYRA.fstatS19CB<-genind2hierfstat(PYRA.genidS19CB)
+PYRA.fstatW19BH<-genind2hierfstat(PYRA.genidW19BH)
+PYRA.fstatW19CB<-genind2hierfstat(PYRA.genidW19CB)
+PYRA.fstatLE12<-genind2hierfstat(PYRA.genidLE12)
+PYRA.fstatSE12<-genind2hierfstat(PYRA.genidSE12)
+PYRA.fstatLE13<-genind2hierfstat(PYRA.genidLE13)
+PYRA.fstatSE13<-genind2hierfstat(PYRA.genidSE13)
+PYRA.fstatDE13<-genind2hierfstat(PYRA.genidDE13)
+PYRA.fstatDE19<-genind2hierfstat(PYRA.genidDE19)
+PYRA.fstatB2E19<-genind2hierfstat(PYRA.genidB2E19)
+PYRA.fstatLE14<-genind2hierfstat(PYRA.genidLE2014)
+PYRA.fstatSE14<-genind2hierfstat(PYRA.genidSE2014)
+PYRA.fstatDE14<-genind2hierfstat(PYRA.genidDE2014)
+PYRA.fstatBE14<-genind2hierfstat(PYRA.genidBE2014)
+PYRA.fstatLE15<-genind2hierfstat(PYRA.genidLE2015)
+PYRA.fstatSE15<-genind2hierfstat(PYRA.genidSE2015)
+PYRA.fstatBE15<-genind2hierfstat(PYRA.genidBE2015)
+PYRA.fstatLE16<-genind2hierfstat(PYRA.genidLE2016)
+PYRA.fstatDE16<-genind2hierfstat(PYRA.genidDE2016)
+PYRA.fstatBE16<-genind2hierfstat(PYRA.genidBE2016)
+PYRA.fstatLE17<-genind2hierfstat(PYRA.genidLE2017)
+PYRA.fstatB2E17<-genind2hierfstat(PYRA.genidB2E2017)
+PYRA.fstatSE17<-genind2hierfstat(PYRA.genidSE2017)
+PYRA.fstatBE17<-genind2hierfstat(PYRA.genidBE2017)
+PYRA.fstatDE17<-genind2hierfstat(PYRA.genidDE2017)
+PYRA.fstatLE18<-genind2hierfstat(PYRA.genidLE2018)
+PYRA.fstatSE18<-genind2hierfstat(PYRA.genidSE2018)
+PYRA.fstatB2E18<-genind2hierfstat(PYRA.genidB2E2018)
+PYRA.fstatBHR18<-genind2hierfstat(PYRA.genidBHR2018)
+PYRA.fstatBHR19<-genind2hierfstat(PYRA.genidBHR2019)
+PYRA.fstatCBR18<-genind2hierfstat(PYRA.genidCBR2018)
+PYRA.fstatCBR19<-genind2hierfstat(PYRA.genidCBR2019)
+PYRA.fstatBH118<-genind2hierfstat(PYRA.genidBH12018)
+PYRA.fstatBH119<-genind2hierfstat(PYRA.genidBH12019)
+PYRA.fstatBH218<-genind2hierfstat(PYRA.genidBH22018)
+PYRA.fstatBH219<-genind2hierfstat(PYRA.genidBH22019)
+PYRA.fstatCB118<-genind2hierfstat(PYRA.genidCB12018)
+PYRA.fstatCB119<-genind2hierfstat(PYRA.genidCB12019)
+PYRA.fstatCB218<-genind2hierfstat(PYRA.genidCB22018)
+PYRA.fstatCB219<-genind2hierfstat(PYRA.genidCB22019)
+PYRA.fstatCB319<-genind2hierfstat(PYRA.genidCB32019)
+
+```
+
+
+```{r}
+pop_labels<- c(rep("W2012",45), rep("W2013",44), rep("W2014", 91), rep("W2015", 18), rep("W2016", 60), rep("W2017", 158), rep("W2018",138), rep("S2018", 54), rep("W2019",8), rep("BH2018", 3), rep("CB2018",5), rep("BH2017",5), rep("BHS2019",7), rep("CBS2019",5), rep("BH2019", 5), rep("CB2019", 10), rep("LE2012", 117), rep ("SE2012",121), rep("DE2013", 181), rep("SE2013", 221), rep("LE2013",146), rep("DE2019",14), rep("B2E2019", 38), rep("LE2014", 379), rep("SE2014",232), rep("DE2014",275), rep("BE2014",139), rep("LE2015", 232), rep("SE2015",2), rep("DE2015", 1), rep("BE2015", 457), rep ("LE2016", 93), rep ("DE2016", 11), rep("BE2016", 121), rep("LE2017", 54), rep("SE2017", 11), rep("BE2017",41), rep("DE2017", 26), rep("B2E2017",14), rep("LE2018", 23), rep("SE2018", 6), rep("B2E2018",6))
+pops_separated<-seppop(PYRA.All.genid, pop=pop_labels)
+names(pops_separated)
+```
+
+Winter 2012-13 Data Set
+```{r}
+data_W2012<-pops_separated$W2012
+#data_W2012
+summary_W2012<-summary(data_W2012)
+summary_W2012
+mean(summary_W2012$Hexp)
+mean(summary_W2012$Hobs)
+t.test(summary_W2012$Hobs, summary_W2012$Hexp, paired = TRUE)
+#PYRA.fstatW12
+AR12<-allelic.richness(PYRA.fstatW12)
+#AR12
+SBF12<-mean(AR12$Ar)
+
+```
+
+Winter 2013-14 Data Set
+```{r}
+data_W2013<-pops_separated$W2013
+#data_W2013
+summary_W2013<-summary(data_W2013)
+summary_W2013
+mean(summary_W2013$Hexp)
+mean(summary_W2013$Hobs)
+t.test(summary_W2013$Hobs, summary_W2013$Hexp, paired = TRUE)
+#PYRA.fstatW13
+AR13<-allelic.richness(PYRA.fstatW13)
+#AR13
+SBF13<-mean(AR13$Ar)
+```
+
+Winter 2014-15 Data Set
+```{r}
+data_W2014<-pops_separated$W2014
+#data_W2014
+summary_W2014<-summary(data_W2014)
+summary_W2014
+mean(summary_W2014$Hexp)
+mean(summary_W2014$Hobs)
+t.test(summary_W2014$Hobs, summary_W2014$Hexp, paired = TRUE)
+#PYRA.fstatW14
+AR14<-allelic.richness(PYRA.fstatW14)
+#AR14
+SBF14<-mean(AR14$Ar)
+```
+
+Winter 2015-16 Data Set
+```{r}
+data_W2015<-pops_separated$W2015
+#data_W2015
+summary_W2015<-summary(data_W2015)
+summary_W2015
+mean(summary_W2015$Hexp)
+mean(summary_W2015$Hobs)
+t.test(summary_W2015$Hobs, summary_W2015$Hexp, paired = TRUE)
+#PYRA.fstatW15
+AR15<-allelic.richness(PYRA.fstatW15)
+#AR15
+SBF15<-mean(AR15$Ar)
+```
+
+Winter 2016-17 Data Set
+```{r}
+data_W2016<-pops_separated$W2016
+#data_W2016
+summary_W2016<-summary(data_W2016)
+summary_W2016
+mean(summary_W2016$Hexp)
+mean(summary_W2016$Hobs)
+t.test(summary_W2016$Hobs, summary_W2016$Hexp, paired = TRUE)
+#PYRA.fstatW16
+AR16<-allelic.richness(PYRA.fstatW16)
+#AR16
+SBF_16<-mean(AR16$Ar)
+```
+
+Winter 2017-18 Data Set
+```{r}
+data_W2017<-pops_separated$W2017
+#data_W2017
+summary_W2017<-summary(data_W2017)
+summary_W2017
+mean(summary_W2017$Hexp)
+mean(summary_W2017$Hobs)
+t.test(summary_W2017$Hobs, summary_W2017$Hexp, paired = TRUE)
+#PYRA.fstatW17
+AR17<-allelic.richness(PYRA.fstatW17)
+#AR17
+SBF17<-mean(AR17$Ar)
+```
+
+Winter 2018-19 Data Set
+```{r}
+data_W2018<-pops_separated$W2018
+#data_W2018
+summary_W2018<-summary(data_W2018)
+summary_W2018
+mean(summary_W2018$Hexp)
+mean(summary_W2018$Hobs)
+t.test(summary_W2018$Hobs, summary_W2018$Hexp, paired = TRUE)
+#PYRA.fstatW18
+AR18<-allelic.richness(PYRA.fstatW18)
+#AR18
+SBF18<-mean(AR18$Ar)
+```
+
+Winter 2019-20 Data Set
+```{r}
+data_W2019<-pops_separated$W2019
+#data_W2019
+summary_W2019<-summary(data_W2019)
+summary_W2019
+mean(summary_W2019$Hexp)
+mean(summary_W2019$Hobs)
+t.test(summary_W2019$Hobs, summary_W2019$Hexp, paired = TRUE)
+#PYRA.fstatW19
+AR19<-allelic.richness(PYRA.fstatW19)
+#AR19
+SBF19<-mean(AR19$Ar)
+```
+
+Summer 2018 Data Set
+```{r}
+data_S2018<-pops_separated$S2018
+#data_S2018
+summary_S2018<-summary(data_S2018)
+summary_S2018
+mean(summary_S2018$Hexp)
+mean(summary_S2018$Hobs)
+t.test(summary_S2018$Hobs, summary_S2018$Hexp, paired = TRUE)
+#PYRA.fstatS18
+ARS18<-allelic.richness(PYRA.fstatS18)
+#ARS18
+SBF18S<-mean(ARS18$Ar)
+```
+
+Winter 2018-19 Beezley Hills Data Set
+```{r}
+data_BH2018<-pops_separated$BH2018
+#data_BH2018
+summary_BH2018<-summary(data_BH2018)
+summary_BH2018
+mean(summary_BH2018$Hexp)
+mean(summary_BH2018$Hobs)
+t.test(summary_BH2018$Hobs, summary_BH2018$Hexp, paired = TRUE)
+#PYRA.fstatW18BH
+ARBH18<-allelic.richness(PYRA.fstatW18BH)
+#ARBH18
+mean(ARBH18$Ar)
+```
+Winter 2018-19 Chester Butte Data set
+```{r}
+data_CB2018<-pops_separated$CB2018
+#data_CB2018
+summary_CB2018<-summary(data_CB2018)
+summary_CB2018
+mean(summary_CB2018$Hexp)
+mean(summary_CB2018$Hobs)
+t.test(summary_CB2018$Hobs, summary_CB2018$Hexp, paired = TRUE)
+#PYRA.fstatW18CB
+ARCB18<-allelic.richness(PYRA.fstatW18CB)
+#ARCB18
+mean(ARCB18$Ar)
+```
+
+WINTER 2017-18 BEEZLEY HILLS DATA SET
+```{r}
+data_BH2017<-pops_separated$BH2017
+#data_BH2017
+summary_BH2017<-summary(data_BH2017)
+summary_BH2017
+mean(summary_BH2017$Hexp)
+mean(summary_BH2017$Hobs)
+t.test(summary_BH2017$Hobs, summary_BH2017$Hexp, paired = TRUE)
+#PYRA.fstatW17BH
+ARBH17<-allelic.richness(PYRA.fstatW17BH)
+#ARBH17
+mean(ARBH17$Ar)
+```
+Summer 2019 Beezley Hills Data Set
+```{r}
+data_BHS2019<-pops_separated$BHS2019
+#data_BHS2019
+summary_BHS2019<-summary(data_BHS2019)
+summary_BHS2019
+mean(summary_BHS2019$Hexp)
+mean(summary_BHS2019$Hobs)
+t.test(summary_BHS2019$Hobs, summary_BHS2019$Hexp, paired = TRUE)
+#PYRA.fstatS19BH
+ARBHS19<-allelic.richness(PYRA.fstatS19BH)
+#ARBHS19
+mean(ARBHS19$Ar)
+```
+
+Summer 2019 Chester Butte Data Set
+```{r}
+library(hierfstat)
+data_CBS2019<-pops_separated$CBS2019
+#data_CBS2019
+summary_CBS2019<-summary(data_CBS2019)
+summary_CBS2019
+mean(summary_CBS2019$Hexp)
+mean(summary_CBS2019$Hobs)
+t.test(summary_CBS2019$Hobs, summary_CBS2019$Hexp, paired = TRUE)
+#PYRA.fstatS19CB
+ARCBS19<-allelic.richness(PYRA.fstatS19CB)
+#ARCBS19
+mean(ARCBS19$Ar)
+```
+WINTER 2019-2020 BEEZLEY HILLS DATA SET
+```{r}
+data_BHW2019<-pops_separated$BH2019
+#data_BHW2019
+summary_BHW2019<-summary(data_BHW2019)
+summary_BHW2019
+mean(summary_BHW2019$Hexp)
+mean(summary_BHW2019$Hobs)
+t.test(summary_BHW2019$Hobs, summary_BHW2019$Hexp, paired = TRUE)
+#PYRA.fstatW19BH
+ARBH19<-allelic.richness(PYRA.fstatW19BH)
+#ARBH19
+mean(ARBH19$Ar)
+```
+
+WINTER 2019-2020 CHESTER BUTTE DATA SET
+```{r}
+data_CBW2019<-pops_separated$CB2019
+#data_CBW2019
+summary_CBW2019<-summary(data_CBW2019)
+summary_CBW2019
+mean(summary_CBW2019$Hexp)
+mean(summary_CBW2019$Hobs)
+t.test(summary_CBW2019$Hobs, summary_CBW2019$Hexp, paired = TRUE)
+#PYRA.fstatW19CB
+ARCB19<-allelic.richness(PYRA.fstatW19CB)
+#ARCB19
+mean(ARCB19$Ar)
+```
+LE2012 Data Set
+```{r}
+data_LE2012<-pops_separated$LE2012
+#data_LE2012
+summary_LE2012<-summary(data_LE2012)
+summary_LE2012
+mean(summary_LE2012$Hexp)
+mean(summary_LE2012$Hobs)
+t.test(summary_LE2012$Hobs, summary_LE2012$Hexp, paired = TRUE)
+#PYRA.fstatLE12
+ARLE12<-allelic.richness(PYRA.fstatLE12)
+#ARLE12
+mean(ARLE12$Ar)
+```
+SE2012 Data Set
+```{r}
+data_SE2012<-pops_separated$SE2012
+#data_SE2012
+summary_SE2012<-summary(data_SE2012)
+summary_SE2012
+mean(summary_SE2012$Hexp)
+mean(summary_SE2012$Hobs)
+t.test(summary_SE2012$Hobs, summary_SE2012$Hexp, paired = TRUE)
+#PYRA.fstatSE12
+ARSE12<-allelic.richness(PYRA.fstatSE12)
+#ARSE12
+mean(ARSE12$Ar)
+```
+LE2013 Data Set
+```{r}
+data_LE2013<-pops_separated$LE2013
+#data_LE2013
+summary_LE2013<-summary(data_LE2013)
+summary_LE2013
+mean(summary_LE2013$Hexp)
+mean(summary_LE2013$Hobs)
+t.test(summary_LE2013$Hobs, summary_LE2013$Hexp, paired = TRUE)
+#PYRA.fstatLE13
+ARLE13<-allelic.richness(PYRA.fstatLE13)
+#ARLE13
+mean(ARLE13$Ar)
+```
+SE2013 Data Set
+```{r}
+data_SE2013<-pops_separated$SE2013
+#data_SE2013
+summary_SE2013<-summary(data_SE2013)
+summary_SE2013
+mean(summary_SE2013$Hexp)
+mean(summary_SE2013$Hobs)
+t.test(summary_SE2013$Hobs, summary_SE2013$Hexp, paired = TRUE)
+#PYRA.fstatSE13
+ARSE13<-allelic.richness(PYRA.fstatSE13)
+#ARSE13
+mean(ARSE13$Ar)
+```
+DE2013 Data Set
+```{r}
+data_DE2013<-pops_separated$DE2013
+#data_DE2013
+summary_DE2013<-summary(data_DE2013)
+summary_DE2013
+mean(summary_DE2013$Hexp)
+mean(summary_DE2013$Hobs)
+t.test(summary_DE2013$Hobs, summary_DE2013$Hexp, paired = TRUE)
+#PYRA.fstatDE13
+ARDE13<-allelic.richness(PYRA.fstatDE13)
+#ARDE13
+mean(ARDE13$Ar)
+```
+DE2019 Data Set
+```{r}
+data_DE2019<-pops_separated$DE2019
+#data_DE2019
+summary_DE2019<-summary(data_DE2019)
+summary_DE2019
+mean(summary_DE2019$Hexp)
+mean(summary_DE2019$Hobs)
+t.test(summary_DE2019$Hobs, summary_DE2019$Hexp, paired = TRUE)
+#PYRA.fstatDE19
+ARDE19<-allelic.richness(PYRA.fstatDE19)
+#ARDE19
+mean(ARDE19$Ar)
+```
+B2E Data Set
+```{r}
+data_B2E2019<-pops_separated$B2E2019
+#data_B2E2019
+summary_B2E2019<-summary(data_B2E2019)
+summary_B2E2019
+mean(summary_B2E2019$Hexp)
+mean(summary_B2E2019$Hobs)
+t.test(summary_B2E2019$Hobs, summary_B2E2019$Hexp, paired = TRUE)
+#PYRA.fstatB2E19
+ARB2E19<-allelic.richness(PYRA.fstatB2E19)
+#ARB2E19
+mean(ARB2E19$Ar)
+```
+LE2014 DATA SET
+```{r}
+data_LE2014<-pops_separated$LE2014
+#data_LE2014
+summary_LE2014<-summary(data_LE2014)
+summary_LE2014
+mean(summary_LE2014$Hexp)
+mean(summary_LE2014$Hobs)
+t.test(summary_LE2014$Hobs, summary_LE2014$Hexp, paired = TRUE)
+#PYRA.fstatLE2014
+ARLE14<-allelic.richness(PYRA.fstatLE14)
+#ARLE14
+mean(ARLE14$Ar)
+```
+SE2014 DATA SET
+```{r}
+data_SE2014<-pops_separated$SE2014
+#data_SE2014
+summary_SE2014<-summary(data_SE2014)
+summary_SE2014
+mean(summary_SE2014$Hexp)
+mean(summary_SE2014$Hobs)
+t.test(summary_SE2014$Hobs, summary_SE2014$Hexp, paired = TRUE)
+#PYRA.fstatSE2014
+ARSE14<-allelic.richness(PYRA.fstatSE14)
+#ARSE14
+mean(ARSE14$Ar)
+```
+DE2014 DATA SET
+```{r}
+data_DE2014<-pops_separated$DE2014
+#data_DE2014
+summary_DE2014<-summary(data_DE2014)
+summary_DE2014
+mean(summary_DE2014$Hexp)
+mean(summary_DE2014$Hobs)
+t.test(summary_DE2014$Hobs, summary_DE2014$Hexp, paired = TRUE)
+#PYRA.fstatDE2014
+ARDE14<-allelic.richness(PYRA.fstatDE14)
+#ARDE14
+mean(ARDE14$Ar)
+```
+BE2014 DATA SET
+```{r}
+data_BE2014<-pops_separated$BE2014
+#data_BE2014
+summary_BE2014<-summary(data_BE2014)
+summary_BE2014
+mean(summary_BE2014$Hexp)
+mean(summary_BE2014$Hobs)
+t.test(summary_BE2014$Hobs, summary_BE2014$Hexp, paired = TRUE)
+#PYRA.fstatBE2014
+ARBE14<-allelic.richness(PYRA.fstatBE14)
+#ARBE14
+mean(ARBE14$Ar)
+```
+LE2015 DATA SET
+```{r}
+data_LE2015<-pops_separated$LE2015
+#data_LE2015
+summary_LE2015<-summary(data_LE2015)
+summary_LE2015
+mean(summary_LE2015$Hexp)
+mean(summary_LE2015$Hobs)
+t.test(summary_LE2015$Hobs, summary_LE2015$Hexp, paired = TRUE)
+#PYRA.fstatLE2015
+ARLE15<-allelic.richness(PYRA.fstatLE15)
+#ARLE15
+mean(ARLE15$Ar)
+```
+SE2015 DATA SET
+```{r}
+data_SE2015<-pops_separated$SE2015
+#data_SE2015
+summary_SE2015<-summary(data_SE2015)
+summary_SE2015
+mean(summary_SE2015$Hexp)
+mean(summary_SE2015$Hobs)
+t.test(summary_SE2015$Hobs, summary_SE2015$Hexp, paired = TRUE)
+#PYRA.fstatSE2015
+ARSE15<-allelic.richness(PYRA.fstatSE15)
+#ARSE15
+mean(ARSE15$Ar)
+```
+
+BE2015 DATA SET
+```{r}
+data_BE2015<-pops_separated$BE2015
+#data_BE2015
+summary_BE2015<-summary(data_BE2015)
+summary_BE2015
+mean(summary_BE2015$Hexp)
+mean(summary_BE2015$Hobs)
+t.test(summary_BE2015$Hobs, summary_BE2015$Hexp, paired = TRUE)
+#PYRA.fstatBE2015
+ARBE15<-allelic.richness(PYRA.fstatBE15)
+#ARBE15
+mean(ARBE15$Ar)
+```
+
+LE2016 DATA SET
+
+```{r}
+data_LE2016<-pops_separated$LE2016
+#data_LE2016
+summary_LE2016<-summary(data_LE2016)
+summary_LE2016
+mean(summary_LE2016$Hexp)
+mean(summary_LE2016$Hobs)
+t.test(summary_LE2016$Hobs, summary_LE2016$Hexp, paired = TRUE)
+#PYRA.fstatLE2016
+ARLE16<-allelic.richness(PYRA.fstatLE16)
+#ARLE16
+mean(ARLE16$Ar)
+```
+
+DE2016 DATA SET
+```{r}
+data_DE2016<-pops_separated$DE2016
+#data_DE2016
+summary_DE2016<-summary(data_DE2016)
+summary_DE2016
+mean(summary_DE2016$Hexp)
+mean(summary_DE2016$Hobs)
+t.test(summary_DE2016$Hobs, summary_DE2016$Hexp, paired = TRUE)
+#PYRA.fstatDE2016
+ARDE16<-allelic.richness(PYRA.fstatDE16)
+#ARDE16
+mean(ARDE16$Ar)
+```
+
+BE2016 DATA SET
+```{r}
+data_BE2016<-pops_separated$BE2016
+#data_BE2016
+summary_BE2016<-summary(data_BE2016)
+summary_BE2016
+mean(summary_BE2016$Hexp)
+mean(summary_BE2016$Hobs)
+t.test(summary_BE2016$Hobs, summary_BE2016$Hexp, paired = TRUE)
+#PYRA.fstatBE2016
+ARBE16<-allelic.richness(PYRA.fstatBE16)
+#ARBE16
+mean(ARBE16$Ar)
+```
+LE2017 DATA SET
+```{r}
+data_LE2017<-pops_separated$LE2017
+#data_LE2017
+summary_LE2017<-summary(data_LE2017)
+summary_LE2017
+mean(summary_LE2017$Hexp)
+mean(summary_LE2017$Hobs)
+t.test(summary_LE2017$Hobs, summary_LE2017$Hexp, paired = TRUE)
+#PYRA.fstatLE2017
+ARLE17<-allelic.richness(PYRA.fstatLE17)
+#ARLE17
+mean(ARLE17$Ar)
+```
+SE2017 DATA SET
+```{r}
+data_SE2017<-pops_separated$SE2017
+#data_SE2017
+summary_SE2017<-summary(data_SE2017)
+summary_SE2017
+mean(summary_SE2017$Hexp)
+mean(summary_SE2017$Hobs)
+t.test(summary_SE2017$Hobs, summary_SE2017$Hexp, paired = TRUE)
+#PYRA.fstatSE2017
+ARSE17<-allelic.richness(PYRA.fstatSE17)
+#ARSE17
+mean(ARSE17$Ar)
+```
+DE2017 DATA SET
+```{r}
+data_DE2017<-pops_separated$DE2017
+#data_DE2017
+summary_DE2017<-summary(data_DE2017)
+summary_DE2017
+mean(summary_DE2017$Hexp)
+mean(summary_DE2017$Hobs)
+t.test(summary_DE2017$Hobs, summary_DE2017$Hexp, paired = TRUE)
+#PYRA.fstatDE2017
+ARDE17<-allelic.richness(PYRA.fstatDE17)
+#ARDE17
+mean(ARDE17$Ar)
+```
+BE2017 DATA SET
+```{r}
+data_BE2017<-pops_separated$BE2017
+#data_BE2017
+summary_BE2017<-summary(data_BE2017)
+summary_BE2017
+mean(summary_BE2017$Hexp)
+mean(summary_BE2017$Hobs)
+t.test(summary_BE2017$Hobs, summary_BE2017$Hexp, paired = TRUE)
+#PYRA.fstatBE2017
+ARBE17<-allelic.richness(PYRA.fstatBE17)
+#ARBE17
+mean(ARBE17$Ar)
+```
+B2E2017 DATA SET
+```{r}
+data_B2E2017<-pops_separated$B2E2017
+#data_B2E2017
+summary_B2E2017<-summary(data_B2E2017)
+summary_B2E2017
+mean(summary_B2E2017$Hexp)
+mean(summary_B2E2017$Hobs)
+t.test(summary_B2E2017$Hobs, summary_B2E2017$Hexp, paired = TRUE)
+#PYRA.fstatB2E2017
+ARB2E17<-allelic.richness(PYRA.fstatB2E17)
+#ARB2E17
+mean(ARB2E17$Ar)
+```
+B2E2018 DATA SET
+```{r}
+data_B2E2018<-pops_separated$B2E2018
+#data_B2E2018
+summary_B2E2018<-summary(data_B2E2018)
+summary_B2E2018
+mean(summary_B2E2018$Hexp)
+mean(summary_B2E2018$Hobs)
+t.test(summary_B2E2018$Hobs, summary_B2E2018$Hexp, paired = TRUE)
+#PYRA.fstatB2E2018
+ARB2E18<-allelic.richness(PYRA.fstatB2E18)
+#ARB2E18
+mean(ARB2E18$Ar)
+```
+LE2018 DATA SET
+```{r}
+data_LE2018<-pops_separated$LE2018
+#data_LE2018
+summary_LE2018<-summary(data_LE2018)
+summary_LE2018
+mean(summary_LE2018$Hexp)
+mean(summary_LE2018$Hobs)
+t.test(summary_LE2018$Hobs, summary_LE2018$Hexp, paired = TRUE)
+#PYRA.fstatLE2018
+ARLE18<-allelic.richness(PYRA.fstatLE18)
+#ARLE18
+mean(ARLE18$Ar)
+```
+SE2018 DATA SET
+```{r}
+data_SE2018<-pops_separated$SE2018
+#data_SE2018
+summary_SE2018<-summary(data_SE2018)
+summary_SE2018
+mean(summary_SE2018$Hexp)
+mean(summary_SE2018$Hobs)
+t.test(summary_SE2018$Hobs, summary_SE2018$Hexp, paired = TRUE)
+#PYRA.fstatSE2018
+ARSE18<-allelic.richness(PYRA.fstatSE18)
+#ARSE18
+mean(ARSE18$Ar)
+```
+
+```{r}
+t.test(AR12$Ar,AR13$Ar, paired = FALSE)
+t.test(AR13$Ar,AR14$Ar, paired = FALSE)
+t.test(AR14$Ar,AR15$Ar, paired = FALSE)
+t.test(AR15$Ar,AR16$Ar, paired = FALSE)
+t.test(AR16$Ar,AR17$Ar, paired = FALSE)
+t.test(AR17$Ar,AR18$Ar, paired = FALSE)
+t.test(AR17$Ar,ARS18$Ar, paired = FALSE)
+t.test(ARS18$Ar,AR18$Ar, paired = FALSE)
+t.test(AR18$Ar,AR19$Ar, paired = FALSE)
+
+```
+```{r}
+t.test(ARBH17$Ar, ARBH18$Ar, paired = FALSE)
+t.test(ARBH18$Ar, ARBHS19$Ar, paired = FALSE)
+t.test(ARBHS19$Ar, ARBH19$Ar, paired = FALSE)
+t.test(ARBH18$Ar, ARBH19$Ar, paired = FALSE)
+
+
+```
+```{r}
+summary_BHR_2018<-summary(PYRA.genidBHR2018)
+summary_BHR_2018
+mean(summary_BHR_2018$Hexp)
+mean(summary_BHR_2018$Hobs)
+t.test(summary_BHR_2018$Hobs, summary_BHR_2018$Hexp, paired = TRUE)
+#PYRA.fstatSE2018
+ARBHR18<-allelic.richness(PYRA.fstatBHR18)
+
+summary(ARBHR18$Ar)
+```
+```{r}
+summary_BH1_2018<-summary(PYRA.genidBH12018)
+summary_BH1_2018
+mean(summary_BH1_2018$Hexp)
+mean(summary_BH1_2018$Hobs)
+t.test(summary_BH1_2018$Hobs, summary_BH1_2018$Hexp, paired = TRUE)
+ARBH118<-allelic.richness(PYRA.fstatBH118)
+summary(ARBH118$Ar)
+```
+```{r}
+summary_BH1_2019<-summary(PYRA.genidBH12019)
+summary_BH1_2019
+mean(summary_BH1_2019$Hexp)
+mean(summary_BH1_2019$Hobs)
+t.test(summary_BH1_2019$Hobs, summary_BH1_2019$Hexp, paired = TRUE)
+ARBH119<-allelic.richness(PYRA.fstatBH119)
+summary(ARBH119$Ar)
+```
+```{r}
+summary_BH2_2018<-summary(PYRA.genidBH22018)
+summary_BH2_2018
+mean(summary_BH2_2018$Hexp)
+mean(summary_BH2_2018$Hobs)
+t.test(summary_BH2_2018$Hobs, summary_BH2_2018$Hexp, paired = TRUE)
+ARBH218<-allelic.richness(PYRA.fstatBH218)
+summary(ARBH218$Ar)
+```
+```{r}
+summary_BH2_2019<-summary(PYRA.genidBH22019)
+summary_BH2_2019
+mean(summary_BH2_2019$Hexp)
+mean(summary_BH2_2019$Hobs)
+t.test(summary_BH2_2019$Hobs, summary_BH2_2019$Hexp, paired = TRUE)
+ARBH219<-allelic.richness(PYRA.fstatBH219)
+summary(ARBH219$Ar)
+```
+```{r}
+summary_BHR_2019<-summary(PYRA.genidBHR2019)
+summary_BHR_2019
+mean(summary_BHR_2019$Hexp)
+mean(summary_BHR_2019$Hobs)
+t.test(summary_BHR_2019$Hobs, summary_BHR_2019$Hexp, paired = TRUE)
+ARBHR19<-allelic.richness(PYRA.fstatBHR19)
+summary(ARBHR19$Ar)
+```
+
+```{r}
+summary_CBR_2018<-summary(PYRA.genidCBR2018)
+summary_CBR_2018
+mean(summary_CBR_2018$Hexp)
+mean(summary_CBR_2018$Hobs)
+t.test(summary_CBR_2018$Hobs, summary_CBR_2018$Hexp, paired = TRUE)
+ARCBR18<-allelic.richness(PYRA.fstatCBR18)
+summary(ARCBR18$Ar)
+```
+```{r}
+summary_CBR_2019<-summary(PYRA.genidCBR2019)
+summary_CBR_2019
+mean(summary_CBR_2019$Hexp)
+mean(summary_CBR_2019$Hobs)
+t.test(summary_CBR_2019$Hobs, summary_CBR_2019$Hexp, paired = TRUE)
+ARCBR19<-allelic.richness(PYRA.fstatCBR19)
+summary(ARCBR19$Ar)
+```
+```{r}
+summary_CB1_2018<-summary(PYRA.genidCB12018)
+summary_CB1_2018
+mean(summary_CB1_2018$Hexp)#0.73
+mean(summary_CB1_2018$Hobs)#0.78
+t.test(summary_CB1_2018$Hobs, summary_CB1_2018$Hexp, paired = TRUE)
+ARCB118<-allelic.richness(PYRA.fstatCB118)
+summary(ARCB118$Ar)
+```
+```{r}
+summary_CB2_2018<-summary(PYRA.genidCB22018)
+summary_CB2_2018
+mean(summary_CB2_2018$Hexp)#0.73
+mean(summary_CB2_2018$Hobs)#0.78
+t.test(summary_CB2_2018$Hobs, summary_CB2_2018$Hexp, paired = TRUE)
+ARCB218<-allelic.richness(PYRA.fstatCB218)
+summary(ARCB218$Ar)
+```
+```{r}
+summary_CB1_2019<-summary(PYRA.genidCB12019)
+summary_CB1_2019
+mean(summary_CB1_2019$Hexp)
+mean(summary_CB1_2019$Hobs)
+t.test(summary_CB1_2019$Hobs, summary_CB1_2019$Hexp, paired = TRUE)
+ARCB119<-allelic.richness(PYRA.fstatCB119)
+summary(ARCB119$Ar)
+```
+
+```{r}
+summary_CB2_2019<-summary(PYRA.genidCB22019)
+summary_CB2_2019
+mean(summary_CB2_2019$Hexp)
+mean(summary_CB2_2019$Hobs)
+t.test(summary_CB2_2019$Hobs, summary_CB2_2019$Hexp, paired = TRUE)
+ARCB219<-allelic.richness(PYRA.fstatCB219)
+summary(ARCB219$Ar)
+```
+```{r}
+summary_CB3_2019<-summary(PYRA.genidCB32019)
+summary_CB3_2019
+mean(summary_CB3_2019$Hexp)
+mean(summary_CB3_2019$Hobs)
+t.test(summary_CB3_2019$Hobs, summary_CB3_2019$Hexp, paired = TRUE)
+ARCB319<-allelic.richness(PYRA.fstatCB319)
+summary(ARCB319$Ar)
+```
+
+```{r}
+t.test(summary_BHR_2018$Hobs, summary_BHR_2019$Hobs, paired = FALSE)
+t.test(ARCB18$Ar, ARCBS19$Ar, paired = FALSE)#pvalue 0.87
+t.test(ARCBS19$Ar, ARCB19$Ar, paired = FALSE)#pvalue 0.68
+t.test(ARCB18$Ar, ARCB19$Ar, paired = FALSE)#pvalue 0.56
+```
+```{r}
+t.test(summary_CB1_2018$Hobs, summary_CB2_2018$Hobs, paired = FALSE)#pvalue 0.91
+t.test(summary_CB1_2019$Hobs, summary_CB2_2019$Hobs, paired = FALSE)#pvalue 0.76
+t.test(summary_CB1_2019$Hobs, summary_CB3_2019$Hobs, paired = FALSE)#pvalue 0.99
+t.test(summary_CB2_2019$Hobs, summary_CB3_2019$Hobs, paired = FALSE)#pvalue 0.78
+t.test(summary_CBR_2018$Hobs, summary_CBR_2019$Hobs, paired = FALSE)#pvalue 0.30
+```
+```{r}
+#LE Enclosure Comparisons
+#NS differences from year to year with LE
+t.test(summary_LE2012$Hobs, summary_LE2013$Hobs, paired = FALSE)#pvalue 0.09
+t.test(summary_LE2013$Hobs, summary_LE2014$Hobs, paired = FALSE)#pvalue 0.43
+t.test(summary_LE2014$Hobs, summary_LE2015$Hobs, paired = FALSE)#pvalue 0.27
+t.test(summary_LE2015$Hobs, summary_LE2016$Hobs, paired = FALSE)#pvalue 0.21
+t.test(summary_LE2016$Hobs, summary_LE2017$Hobs, paired = FALSE)#pvalue 0.08
+t.test(summary_LE2017$Hobs, summary_LE2018$Hobs, paired = FALSE)#pvalue 0.51
+t.test(summary_LE2012$Hexp, summary_LE2013$Hexp, paired = FALSE)#pvalue 0.94
+t.test(summary_LE2013$Hexp, summary_LE2014$Hexp, paired = FALSE)#pvalue 0.62
+t.test(summary_LE2014$Hexp, summary_LE2015$Hexp, paired = FALSE)#pvalue 0.60
+t.test(summary_LE2015$Hexp, summary_LE2016$Hexp, paired = FALSE)#pvalue 0.64
+t.test(summary_LE2016$Hexp, summary_LE2017$Hexp, paired = FALSE)#pvalue 0.32
+t.test(summary_LE2017$Hexp, summary_LE2018$Hexp, paired = FALSE)#pvalue 0.09
+t.test(ARLE12$Ar, ARLE13$Ar, paired = FALSE)#pvalue 0.40
+t.test(ARLE13$Ar, ARLE14$Ar, paired = FALSE)#pvalue 0.35
+t.test(ARLE14$Ar, ARLE15$Ar, paired = FALSE)#pvalue 0.69
+t.test(ARLE15$Ar, ARLE16$Ar, paired = FALSE)#pvalue 0.67
+t.test(ARLE16$Ar, ARLE17$Ar, paired = FALSE)#pvalue 0.02
+t.test(ARLE17$Ar, ARLE18$Ar, paired = FALSE)#pvalue 8.59e-5
+LE_AR<-c(9.81,8.88,9.99,9.51,9.05,11.71,7.16) #AR 9.44
+LE_Ho<-c(0.76,0.81,0.83,0.80,0.76,0.82,0.79) #Ho 0.80
+LE_He<-c(0.79,0.79,0.81,0.79,0.78,0.81,0.75) #He 0.79
+mean(LE_Ho)
+sd(LE_Ho)
+mean(LE_He)
+sd(LE_He)
+mean(LE_AR)
+sd(LE_AR)
+```
+```{r}
+#SE Enclosure Comparisons
+#NS differences from year to year with SE
+t.test(summary_SE2012$Hobs, summary_SE2013$Hobs, paired = FALSE)#pvalue 0.47
+t.test(summary_SE2013$Hobs, summary_SE2014$Hobs, paired = FALSE)#pvalue 0.92
+t.test(summary_SE2014$Hobs, summary_SE2015$Hobs, paired = FALSE)#pvalue 0.53
+t.test(summary_SE2015$Hobs, summary_SE2017$Hobs, paired = FALSE)#pvalue 0.85 - 2016 only contained a single indv.
+t.test(summary_SE2017$Hobs, summary_SE2018$Hobs, paired = FALSE)#pvalue 0.41
+t.test(summary_SE2012$Hexp, summary_SE2013$Hexp, paired = FALSE)#pvalue 0.99
+t.test(summary_SE2013$Hexp, summary_SE2014$Hexp, paired = FALSE)#pvalue 0.73
+t.test(summary_SE2014$Hexp, summary_SE2015$Hexp, paired = FALSE)#pvalue 0.001
+t.test(summary_SE2014$Hexp, summary_SE2017$Hexp, paired = FALSE)#pvalue 0.02 - 2015, 2016 only contained a 1-2 indv.
+t.test(summary_SE2017$Hexp, summary_SE2018$Hexp, paired = FALSE)#pvalue 0.004
+t.test(summary_SE2014$Hexp, summary_SE2017$Hexp, paired = FALSE)#pvalue 0.02
+t.test(ARSE12$Ar, ARSE13$Ar, paired = FALSE)#pvalue 0.82
+t.test(ARSE13$Ar, ARSE14$Ar, paired = FALSE)#pvalue 0.82
+t.test(ARSE14$Ar, ARSE17$Ar, paired = FALSE)#pvalue 0.0002
+t.test(ARSE17$Ar, ARSE18$Ar, paired = FALSE)#pvalue 0.0003
+SE_AR<-c(8.99,9.23,8.99,5.41,3.24) 
+SE_Ho<-c(0.78,0.8,0.79,0.74,0.75,0.7) 
+SE_He<-c(0.79,0.78,0.77,0.68,0.54) 
+mean(SE_Ho)
+sd(SE_Ho)
+mean(SE_He)
+sd(SE_He)
+mean(SE_AR)
+sd(SE_AR)
+```
+```{r}
+#DE Enclosure Comparisons
+#NS differences from year to year with DE EXCEPT FOR THE 1ST TO 2ND YEAR
+t.test(summary_DE2013$Hobs, summary_DE2014$Hobs, paired = FALSE)#pvalue 0.04
+t.test(summary_DE2014$Hobs, summary_DE2016$Hobs, paired = FALSE)#pvalue 0.64 - DE 2015 ONLY HAD A SINGLE INDIV.
+t.test(summary_DE2016$Hobs, summary_DE2017$Hobs, paired = FALSE)#pvalue 0.60
+t.test(summary_DE2017$Hobs, summary_DE2019$Hobs, paired = FALSE)#pvalue 0.93 - DE 2018 HAD A SINGLE INDV.
+t.test(summary_DE2013$Hexp, summary_DE2014$Hexp, paired = FALSE)#pvalue 0.03
+t.test(summary_DE2014$Hexp, summary_DE2016$Hexp, paired = FALSE)#pvalue 0.005 - DE 2015 ONLY HAD A SINGLE INDIV.
+t.test(summary_DE2016$Hexp, summary_DE2017$Hexp, paired = FALSE)#pvalue 0.01
+t.test(summary_DE2017$Hexp, summary_DE2019$Hexp, paired = FALSE)#pvalue 0.15 - DE 2018 HAD A SINGLE INDV.
+t.test(ARDE13$Ar, ARDE14$Ar, paired = FALSE)#pvalue 0.02
+t.test(ARDE14$Ar, ARDE16$Ar, paired = FALSE)#pvalue 3.45e-6
+t.test(ARDE16$Ar, ARDE17$Ar, paired = FALSE)#pvalue 0.001
+t.test(ARDE17$Ar, ARDE19$Ar, paired = FALSE)#pvalue 0.12
+DE_AR<-c(6.47,8.35,4.02,6.53,5.39) 
+DE_Ho<-c(.68,.74,.76,.74,.73) 
+DE_He<-c(.7,.75,.66,.74,.69) 
+mean(DE_Ho)
+sd(DE_Ho)
+mean(DE_He)
+sd(DE_He)
+mean(DE_AR)
+sd(DE_AR)
+```
+```{r}
+#BE Enclosure Comparisons
+#NS differences from year to year with BE
+t.test(summary_BE2014$Hobs, summary_BE2015$Hobs, paired = FALSE)#pvalue 0.91
+t.test(summary_BE2015$Hobs, summary_BE2016$Hobs, paired = FALSE)#pvalue 0.24
+t.test(summary_BE2016$Hobs, summary_BE2017$Hobs, paired = FALSE)#pvalue 0.29
+t.test(summary_BE2014$Hexp, summary_BE2015$Hexp, paired = FALSE)#pvalue 0.72
+t.test(summary_BE2015$Hexp, summary_BE2016$Hexp, paired = FALSE)#pvalue 0.61
+t.test(summary_BE2016$Hexp, summary_BE2017$Hexp, paired = FALSE)#pvalue 0.94
+t.test(ARBE14$Ar, ARBE15$Ar, paired = FALSE)#pvalue 0.24
+t.test(ARBE15$Ar, ARBE16$Ar, paired = FALSE)#pvalue 0.41
+t.test(ARBE16$Ar, ARBE17$Ar, paired = FALSE)#pvalue 0.60
+BE_AR<-c(8.52,9.80,8.84,8.33) 
+BE_Ho<-c(.79,.79,.74,.78) 
+BE_He<-c(.77,.78,.76,.76) 
+mean(BE_Ho)
+sd(BE_Ho)
+mean(BE_He)
+sd(BE_He)
+mean(BE_AR)
+sd(BE_AR)
+```
+```{r}
+#B2E Enclosure Comparisons
+#S differences FROM 2017 (ALL ENLCLOSURE BORN) TO 2018 (MOSTLY WILD BORN), NS DIFFERENCE AFTER
+t.test(summary_B2E2017$Hobs, summary_B2E2018$Hobs, paired = FALSE)#pvalue 0.003
+t.test(summary_B2E2018$Hobs, summary_B2E2019$Hobs, paired = FALSE)#pvalue 0.74
+```
+
+```{r}
+#ACROSS ENCLOSURES 2012
+t.test(summary_LE2012$Hobs, summary_SE2012$Hobs, paired = FALSE) #pvalue 0.661
+#ns differences in 2012
+```
+```{r}
+#ACROSS ENCLOSURES 2013
+t.test(summary_LE2013$Hobs, summary_SE2013$Hobs, paired = FALSE) #pvalue 0.66
+t.test(summary_LE2013$Hobs, summary_DE2013$Hobs, paired = FALSE) #pvalue 0.0002
+t.test(summary_SE2013$Hobs, summary_DE2013$Hobs, paired = FALSE) #pvalue 0.001
+#s differences in 2013 between LE, SE with DE (initial year), ns between LE, SE
+```
+```{r}
+#ACROSS ENCLOSURES 2014
+t.test(summary_LE2014$Hobs, summary_SE2014$Hobs, paired = FALSE) #pvalue 0.31
+t.test(summary_LE2014$Hobs, summary_DE2014$Hobs, paired = FALSE) #pvalue 0.0008
+t.test(summary_LE2014$Hobs, summary_BE2014$Hobs, paired = FALSE) #pvalue 0.17
+t.test(summary_SE2014$Hobs, summary_DE2014$Hobs, paired = FALSE) #pvalue 0.10
+t.test(summary_SE2014$Hobs, summary_BE2014$Hobs, paired = FALSE) #pvalue 0.80
+t.test(summary_DE2014$Hobs, summary_BE2014$Hobs, paired = FALSE) #pvalue 0.14
+#s differences in 2014 between LE and DE (initial year), ns between other combinations
+```
+```{r}
+#ACROSS ENCLOSURES 2015
+t.test(summary_LE2015$Hobs, summary_SE2015$Hobs, paired = FALSE) #pvalue 0.49
+t.test(summary_LE2015$Hobs, summary_BE2015$Hobs, paired = FALSE) #pvalue 0.77
+t.test(summary_SE2015$Hobs, summary_BE2015$Hobs, paired = FALSE) #pvalue 0.56
+#ns differences in 2015
+```
+
+```{r}
+#ACROSS ENCLOSURES 2016
+t.test(summary_LE2016$Hobs, summary_DE2016$Hobs, paired = FALSE) #pvalue 0.91
+t.test(summary_LE2016$Hobs, summary_BE2016$Hobs, paired = FALSE) #pvalue 0.68
+t.test(summary_DE2016$Hobs, summary_BE2016$Hobs, paired = FALSE) #pvalue 0.66
+#ns differences in 2016
+```
+
+```{r}
+#ACROSS ENCLOSURES 2017
+t.test(summary_LE2017$Hobs, summary_SE2017$Hobs, paired = FALSE) #pvalue 0.22
+t.test(summary_LE2017$Hobs, summary_DE2017$Hobs, paired = FALSE) #pvalue 0.05
+t.test(summary_LE2017$Hobs, summary_BE2017$Hobs, paired = FALSE) #pvalue 0.29
+t.test(summary_LE2017$Hobs, summary_B2E2017$Hobs, paired = FALSE) #pvalue 0.002
+
+t.test(summary_SE2017$Hobs, summary_DE2017$Hobs, paired = FALSE) #pvalue 0.74
+t.test(summary_SE2017$Hobs, summary_BE2017$Hobs, paired = FALSE) #pvalue 0.57
+t.test(summary_SE2017$Hobs, summary_B2E2017$Hobs, paired = FALSE) #pvalue 0.003
+
+t.test(summary_DE2017$Hobs, summary_BE2017$Hobs, paired = FALSE) #pvalue 0.24
+t.test(summary_DE2017$Hobs, summary_B2E2017$Hobs, paired = FALSE) #pvalue 5.44e-5
+
+t.test(summary_BE2017$Hobs, summary_B2E2017$Hobs, paired = FALSE) #pvalue 8.32e-5
+
+
+#ns differences in 2017 between all combinations except for those with B2E (initial year, all indv taken from LE)
+
+```
+```{r}
+#ACROSS ENCLOSURES 2018
+t.test(summary_LE2018$Hobs, summary_SE2018$Hobs, paired = FALSE) #pvalue 0.19
+t.test(summary_LE2018$Hobs, summary_B2E2018$Hobs, paired = FALSE) #pvalue 0.59
+t.test(summary_SE2018$Hobs, summary_B2E2018$Hobs, paired = FALSE) #pvalue 0.44
+#ns differences in 2018
+```
+
+```{r}
+#ACROSS ENCLOSURES 2019
+t.test(summary_DE2019$Hobs, summary_B2E2019$Hobs, paired = FALSE) #pvalue 1.00
+```
+```{r}
+#Across years for B2E
+t.test(summary_B2E2017$Hobs, summary_B2E2018$Hobs, paired = FALSE) #pvalue 0.004
+t.test(summary_B2E2018$Hobs, summary_B2E2019$Hobs, paired = FALSE) #pvalue 0.74
+t.test(summary_B2E2017$Hexp, summary_B2E2018$Hexp, paired = FALSE) #pvalue 0.005
+t.test(summary_B2E2018$Hexp, summary_B2E2019$Hexp, paired = FALSE) #pvalue 0.39
+t.test(ARB2E17$Ar, ARB2E18$Ar, paired = FALSE)#pvalue 3.45e-5
+t.test(ARB2E18$Ar, ARB2E19$Ar, paired = FALSE)#pvalue 0.67
+B2E_AR<-c(7.58,4.79,4.58) 
+B2E_Ho<-c(.92,.75,.73) 
+B2E_He<-c(.80,.69,.66) 
+mean(B2E_Ho)
+sd(B2E_Ho)
+mean(B2E_He)
+sd(B2E_He)
+mean(B2E_AR)
+sd(B2E_AR)
+
+```
+```{r}
+library("adegenet")
+library("hierfstat")
+library("PopGenReport")
+PYRA.genid_AR<-read.genepop("./CHAPTER 1 - FINAL/Genotypes_Allelic_Richness.gen")
+PYRA.fstat_AR<-genind2hierfstat(PYRA.genid_AR)
+PYRA_AR<-allelic.richness(PYRA.fstat_AR, diploid = TRUE, min.n = 10)
+PYRA_AR
+mean(PYRA_AR$Ar)
+write.csv(PYRA_AR$Ar, file = "./CHAPTER 1 - FINAL/PYRA_AR.tsv")
+```
+
