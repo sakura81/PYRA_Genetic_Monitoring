@@ -520,68 +520,104 @@ plot(Rls_Day_Pred, ylab="Release Pen Probability Winter Detection", xlab="Releas
 
   
 ```
+```{r}
+# Load required libraries
+library(ggplot2)
+
+# Generate predictions (assuming 'Predict' returns a data frame with appropriate columns)
+Rls_Day_Pred <- Predict(Day.rls.lrm, Release_Day = seq(135, 225, 10), fun = plogis)
+
+# Check the structure of Rls_Day_Pred to ensure it contains the right columns
+# Uncomment the next line to check the structure
+str(Rls_Day_Pred)
+
+# Plotting using ggplot2
+RP1 <- ggplot(Rls_Day_Pred, aes(x = Release_Day)) + 
+  geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
+  xlab("Release Day") +
+  ylab("Predicted Apparent Survival") +
+  coord_cartesian(xlim = c(135, 225)) + # Adjust x limits based on your release days
+  theme(axis.text = element_text(size = 12), 
+        axis.title = element_text(size = 12, face = "bold"))
+
+# Print the plot
+print(RP1)
+```
 
 
 
 ```{r}
 library(ggpubr)
 library(ggplot2)
-RP1=ggplot(Rls_Day_Pred)
-RP2=RP1+ theme_classic()+
-  xlab("Release Day")+
-  ylab("Apparent Survival")+
-  coord_cartesian(xlim=c(140,220))+
-  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+RP1 <- ggplot(Rls_Day_Pred, aes(x = Release_Day)) + 
+  geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
+  xlab("Release Day") +
+  ylab("Apparent Survival") +
+  coord_cartesian(xlim = c(135, 225)) + # Adjust x limits based on your release days
+  theme(axis.text = element_text(size = 12), 
+        axis.title = element_text(size = 12, face = "bold"))
 ggsave(filename = "./RP1.png",
-       plot = RP2,
+       plot = RP1,
        width = 8,
        height=4,
        dpi = 600)
-AD1=ggplot(Adult_Day_Pred)
-AD2=AD1+ theme_classic()+
+AD1=ggplot(Adult_Day_Pred)+
+geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
   xlab("Release Day")+
   ylab("Apparent Survival")+
   coord_cartesian(xlim=c(60,300))+
   theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
 ggsave(filename = "./AD1.png",
-       plot = AD2,
+       plot = AD1,
        width = 8,
        height=4,
        dpi = 600)
-KD=ggplot(DAYPRED)
-KD2=KD+ theme_classic()+
+KD=ggplot(DAYPRED)+
+geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
   xlab("Release Day")+
   ylab("Apparent Survival")+
   coord_cartesian(xlim=c(120,300))+
   theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
 ggsave(filename = "./KD.png",
-       plot = KD2,
+       plot = KD,
        width = 8,
        height=4,
        dpi = 600)
-KW=ggplot(WEIGHTPRED)
-KW2=KW+ theme_classic()+
+KW=ggplot(WEIGHTPRED)+
+geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
   xlab("Release Weight (g)")+
   ylab("Apparent Survival")+
   coord_cartesian(xlim=c(80,500))+
   theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
 ggsave(filename = "./KW.png",
-       plot = KW2,
+       plot = KW,
        width = 8,
        height=4,
        dpi = 600)
-KH=ggplot(HLPRED)
-KH2=KH+ theme_classic()+
+KH=ggplot(HLPRED)+
+geom_line(aes(y = yhat), color = "black") +  # Line for predicted values
+  geom_ribbon(aes(ymin = lower, ymax = upper), fill = "turquoise1", alpha = 0.3) + # Confidence interval
+  theme_classic() +
   xlab("Homozygosity")+
   ylab("Apparent Survival")+
   coord_cartesian(xlim=c(0.1,0.7))+
   theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
 ggsave(filename = "./KH.png",
-       plot = KH2,
+       plot = KH,
        width = 8,
        height=4,
        dpi = 600)
-Surv_Fig=ggarrange(KW2, KD2, KH2, AD2, RP2, common.legend = F, ncol = 2, nrow = 3, labels = (c("a)","b)","c)","d)","e)")))
+Surv_Fig=ggarrange(KW, KD, KH, AD1, RP1, common.legend = F, ncol = 2, nrow = 3, labels = (c("a)","b)","c)","d)","e)")))
 Surv_Fig
 ggsave(filename = "./SurvivFig.png",
        plot = Surv_Fig,
@@ -632,116 +668,16 @@ library(lattice)
 coplot(CWeight~Release_Date|RELEASE_YEAR, data = SURVIVE_KITS)
 coplot(Survival~ Release_Date|RELEASE_YEAR, data = SURVIVE_KITS)
 coplot(Survival~ CWeight|Release_Date, data=SURVIVE_KITS)
-coplot(Survival~CB|Survival, data=SURVIVE_KITS)
+coplot(Survival~CB_ANCESTRY|Survival, data=SURVIVE_KITS)
 coplot(Survival~HL|Survival, data=SURVIVE_KITS)
 coplot(Survival~Sex|Survival, data=SURVIVE_KITS)
 xyplot(Survival~ Release_Date,data=SURVIVE_KITS, xlab = "L.Date", ylab = "Detected")
 xyplot(Survival~ CWeight,data=SURVIVE_KITS, xlab = "L.Weight", ylab = "Detected")
-xyplot(Survival~ CB,data=SURVIVE_KITS, xlab = "CB Ancestry", ylab = "Detected")
+xyplot(Survival~ CB_ANCESTRY,data=SURVIVE_KITS, xlab = "CB Ancestry", ylab = "Detected")
 xyplot(Survival~ HL,data=SURVIVE_KITS, xlab = "HL", ylab = "Detected")
 xyplot(Survival~ Sex,data=SURVIVE_KITS, xlab = "Sex", ylab = "Detected")
 xyplot(Survival~ RELEASE_YEAR,data=SURVIVE_KITS, xlab = "Year", ylab = "Detected")
 ```
 
 
-
-```{r}
-pairs(SURVIVE_KITS)
-```
-
-```{r}
-
-Year<-SURVIVE_KITS$RELEASE_YEAR
-HL<-SURVIVE_KITS$HL
-Sex<-SURVIVE_KITS$fSEX
-CB<-SURVIVE_KITS$CB
-Day<-SURVIVE_KITS$Release_Date
-Weight<-SURVIVE_KITS$CWeight
-Survival<-SURVIVE_KITS$Survival
-
-```
-```{r}
-#binomial GLM
-#Kit.glm7 includes all 6 explanatory variables as well as an interaction of Release Day:Weight since we saw a correlation of over 0.6.  When including this, the interaction term is significant.
-Kit.glm7<-glm(Survival~Year+Sex+CB+Day+Weight+HL+Weight:Day, family = binomial)
-summary(Kit.glm7)
-drop1(Kit.glm7, test = "Chi")
-anova(Kit.glm7)
-```
-```{r}
-#Look for overdispersion
-#variance=(D)/(n-p)
-#Where D is equal to the Null Deviance above and (n-p) equals the df listed above.  If this ratio is about 1, then you can safely assume there is no overdispersion.  Less than 1 is possible underdispersion.
-(955.49/(1659))
-
-```
-```{r}
-#binomial GLM
-#Kit.glm6noI includes all 6 explanatory variables and no interaction of Release Day:Weight 
-Kit.glm6noI<-glm(Survival~Year+Sex+CB+Day+Weight+HL, family = binomial)
-summary(Kit.glm6noI)
-drop1(Kit.glm6noI, test = "Chi")
-#Here day is not significant (0.08) but we will begin removing the least significant explanatory variable and then rerun the model.
-```
-```{r}
-#binomial GLM
-#Kit.glm5 includes  5 explanatory variables.  Sex was removed since it was the least significant (p=0.87)
-Kit.glm5<-glm(Survival~Year+CB+Day+Weight+HL, family = binomial)
-summary(Kit.glm5)
-drop1(Kit.glm5, test = "Chi")
-#Columbia Basin ancestry is not significant so we will remove this variable on the next model and rerun.
-```
-```{r}
-#binomial GLM
-#Kit.glm4 includes  4 explanatory variables.  Sex and CB were removed since they were the least significant (Sex:p=0.87 and CB:p=0.36)
-Kit.glm4<-glm(Survival~Year+Day+Weight+HL, family = binomial)
-summary(Kit.glm4)
-drop1(Kit.glm4, test = "Chi")
-#Day is not significant so we will remove this variable on the next model and rerun.
-```
-```{r}
-#binomial GLM
-#Kit.glm3 includes  3 explanatory variables.  Sex, CB, and Day were removed since it they were the least significant (Sex:p=0.87 and CB:p=0.36 and Day:p=0.11)
-Kit.glm5<-glm(Survival~Year+Weight+HL, family = binomial)
-summary(Kit.glm5)
-drop1(Kit.glm5, test = "Chi")
-#All variables are now significant
-```
-
-```{r}
-#I want to double check the model that includes the interaction term CWeight:Release_Day.  
-Kit.glm5B<-glm(Survival~Year+Sex+CB+HL+Weight:Day, family = binomial)
-summary(Kit.glm5B)
-drop1(Kit.glm5B, test = "Chi")
-#Since Sex is the least significant, we will remove first
-```
-```{r}
-Kit.glm4B<-glm(Survival~Year+CB+HL+Weight:Day, family = binomial)
-summary(Kit.glm4B)
-drop1(Kit.glm4B, test = "Chi")
-```
-
-```{r}
-#CB Ancestry is still not significant, so it will be removed.
-Kit.glm3B<-glm(Survival~Year+HL+Weight:Day, family = binomial)
-summary(Kit.glm3B)
-drop1(Kit.glm3B, test = "Chi")
-plot(Kit.glm3B)
-anova(Kit.glm3B, test = "Chisq")
-#All explanatory variables are significant
-```
-```{r}
-#Run an anova on the 2 models
-Kit.glm0<-glm(Survival~1, family = binomial)
-summary(Kit.glm0)
-anova(Kit.glm0,Kit.glm3, test = "Chi")
-anova(Kit.glm0, Kit.glm3B, test = "Chi")
-anova(Kit.glm3, Kit.glm3B, test = "Chi")
-```
-```{r}
-#Model Validation
-#(1)Plot the Pearson or deviance residuals against the fitted values
-#(2)Plot the residuals vs each explanatory variable in the model (and also against the variables that were dropped)
-predict(Kit.glm3B, type = "link", se=TRUE)
-```
 
