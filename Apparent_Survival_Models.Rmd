@@ -2,16 +2,18 @@
 title: "Juvenile-Apparent-Survival"
 author: "Stacey Nerkowski"
 date: "8/13/2020"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 Predictor variable:  Detection (# of years detected)
 Explanatory variable:  Day (Day of the year), Weight, Homozygosity by locus, Columbia Basin ancestry, Sex (1 male/2 female), Year Released
 ```{r}
-SURVIVE_KITS<-read.table("D:/PYRA/Dissertation/Genetic Monitoring Info - Chapter 1/Chapter 1 - Genetic Monitoring/Apparent_Survival/SURVIVORRHSIP-INFO-KITS.txt", sep = "\t", header = TRUE)
+SURVIVE_KITS<-read.table("./SURVIVORRHSIP-INFO-KITS.txt", sep = "\t", header = TRUE)
 #Sex is a nominal variables that need to be labeled for the numerical outputs to be more easily understood
 source("./HighstatLibV10.R")
-SURVIVE_KITS$fSEX<-factor(SURVIVE_KITS$Sex, levels = c(1,2), labels = c("Male", "Female"))
+SURVIVE_KITS$SEX<-factor(SURVIVE_KITS$Sex, levels = c(1,2), labels = c("Male", "Female"))
 #Convert ancestry to %s
 SURVIVE_KITS$CB_ANCESTRY<-(SURVIVE_KITS$CB_ANCESTRY*100)
 SURVIVE_KITS
@@ -24,10 +26,582 @@ colSums(sapply(Kit.NA, FUN=is.na))
 ```{r}
 SURVIVE_KITS$Survival<-SURVIVE_KITS$Detections
 SURVIVE_KITS$Survival[SURVIVE_KITS$Detections>0]<-1
+SURVIVE_KITS$Survival<-factor(SURVIVE_KITS$Survival, levels = c(0,1), labels = c("Not Detected", "Detected"))
 SURVIVE_KITS$CWeight<-SURVIVE_KITS$Weight-mean(SURVIVE_KITS$Weight)
+SURVIVE_KITS$YEAR<-as.factor(SURVIVE_KITS$RELEASE_YEAR)
+SURVIVE_KITS$YEAR<-relevel(SURVIVE_KITS$YEAR, ref = "2014")
 SURVIVE_KITS
+KITS2012<-subset(SURVIVE_KITS, YEAR=="2012")
+KITS2013<-subset(SURVIVE_KITS, YEAR=="2013")
+KITS2014<-subset(SURVIVE_KITS, YEAR=="2014")
+KITS2015<-subset(SURVIVE_KITS, YEAR=="2015")
+KITS2016<-subset(SURVIVE_KITS, YEAR=="2016")
 ```
 
+```{r}
+library(AICcmodavg)
+####Weight x ReleaseDay Correlation Exploration#########
+plot(SURVIVE_KITS$Release_Date, SURVIVE_KITS$Weight, col="mediumslateblue")
+cor(SURVIVE_KITS$Release_Date, SURVIVE_KITS$Weight, use="pairwise.complete.obs")
+tapply(SURVIVE_KITS$Weight, as.factor(SURVIVE_KITS$Release_Date), mean, na.rm=TRUE) #mean weight for each release day
+SURVIVE_KITS$AvgWeight=ave(SURVIVE_KITS$Weight[!is.na(SURVIVE_KITS$Weight)], as.factor(SURVIVE_KITS$Release_Date[!is.na(SURVIVE_KITS$Weight)]), FUN=mean, na.exclude=TRUE)
+
+```
+
+```{r}
+plot(KITS2012$Weight~KITS2012$Release_Date, col="darkturquoise")
+cor(KITS2012$Weight,KITS2012$Release_Date)
+cor(KITS2013$Weight,KITS2013$Release_Date, use="pairwise.complete.obs")
+plot(KITS2013$Weight[KITS2013$Release_Date<227]~  KITS2013$Release_Date[KITS2013$Release_Date<227],col="purple")
+cor(KITS2013$Weight[KITS2013$Release_Date<227], KITS2013$Release_Date[KITS2013$Release_Date<227], use="pairwise.complete.obs")
+plot(KITS2014$Weight~KITS2014$Release_Date,col="mediumslateblue")
+cor(KITS2014$Weight,KITS2014$Release_Date, use="pairwise.complete.obs")
+plot(KITS2014$Weight[KITS2014$Release_Date<200 & KITS2014$Release_Date>111]~  KITS2014$Release_Date[KITS2014$Release_Date<200 & KITS2014$Release_Date>111],col="mediumslateblue")
+cor(KITS2014$Weight[KITS2014$Release_Date<200 & KITS2014$Release_Date>111],  KITS2014$Release_Date[KITS2014$Release_Date<200 & KITS2014$Release_Date>111], use="pairwise.complete.obs")
+plot(KITS2015$Weight~KITS2015$Release_Date, col="deeppink")
+cor(KITS2015$Weight,KITS2015$Release_Date, use="pairwise.complete.obs")
+plot(KITS2015$Weight[KITS2015$Release_Date<300 & KITS2015$Release_Date>106]~  KITS2015$Release_Date[KITS2015$Release_Date<300 & KITS2015$Release_Date>106],col="deeppink")
+cor(KITS2015$Weight[KITS2015$Release_Date<300 & KITS2015$Release_Date>114],  KITS2015$Release_Date[KITS2015$Release_Date<300 & KITS2015$Release_Date>114], use="pairwise.complete.obs")
+plot(KITS2016$Weight~KITS2016$Release_Date,col="blueviolet")
+cor(KITS2016$Weight,KITS2016$Release_Date, use="pairwise.complete.obs")
+plot(KITS2016$Weight[KITS2016$Release_Date<220 & KITS2016$Release_Date>110]~  KITS2016$Release_Date[KITS2016$Release_Date<220 & KITS2016$Release_Date>110],col="blueviolet")
+cor(KITS2016$Weight[KITS2016$Release_Date<220 & KITS2016$Release_Date>110],  KITS2016$Release_Date[KITS2016$Release_Date<220 & KITS2016$Release_Date>110], use="pairwise.complete.obs")
+cor(SURVIVE_KITS$Weight,SURVIVE_KITS$Release_Date)
+
+
+##In 2012, 2013, and 2016 weight and release day are not strongly correlated (0.114, 0.419, 0.169 respectively). Only correlated in 2014 and 2015 (0.620 and 0.730, respectively). Use both variables in 2012, 2013, and 2016 models, and use only ReleaseDay in 2014 and 2015, acknowledge correlation in discussion.  Overall though (when using teh entire data set, strong correlation between the 2 variable (0.619)
+
+###12 weeks old = 322 g Elias et al 2013
+```
+
+
+```{r}
+#Models - Kits - With all explantory variables.  Year is shown to be highly significant from the code below and will be included in each model.
+#32 total models if we keep release date and weight as independent variables
+Full.Kit<-glm(Survival~YEAR+Release_Date+Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_KITS, family = "binomial")
+Year.Kit<-glm(Survival~YEAR, family = "binomial", data = SURVIVE_KITS)
+Day.Kit<-glm(Survival~YEAR+Release_Date,data = SURVIVE_KITS, family = "binomial")
+Weight.Kit<-glm(Survival~YEAR+Weight,data = SURVIVE_KITS, family = "binomial")
+Sex.Kit<-glm(Survival~YEAR+SEX,data = SURVIVE_KITS, family = "binomial")
+CB.Kit<-glm(Survival~YEAR+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+HL.Kit<-glm(Survival~YEAR+HL,data = SURVIVE_KITS, family = "binomial")
+Day_weight.Kit<-glm(Survival~YEAR+Release_Date+Weight,data = SURVIVE_KITS, family = "binomial")
+Day_sex.Kit<-glm(Survival~YEAR+Release_Date+SEX,data = SURVIVE_KITS, family = "binomial")
+Day_CB.Kit<-glm(Survival~YEAR+Release_Date+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+Day_HL.Kit<-glm(Survival~YEAR+Release_Date+HL,data = SURVIVE_KITS, family = "binomial")
+Day_weight_sex.Kit<-glm(Survival~YEAR+Release_Date+Weight+SEX,data = SURVIVE_KITS, family = "binomial")
+Day_weight_CB.Kit<-glm(Survival~YEAR+Release_Date+Weight+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+Day_weight_HL.Kit<-glm(Survival~YEAR+Release_Date+Weight+HL,data = SURVIVE_KITS, family = "binomial")
+Day_sex_CB.Kit<-glm(Survival~YEAR+Release_Date+SEX+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+Day_CB_HL.Kit<-glm(Survival~YEAR+Release_Date+CB_ANCESTRY+HL,data = SURVIVE_KITS, family = "binomial")
+Day_Sex_HL.Kit<-glm(Survival~YEAR+Release_Date+SEX+HL,data = SURVIVE_KITS, family = "binomial")
+Weight_sex.Kit<-glm(Survival~YEAR+Weight+SEX,data = SURVIVE_KITS, family = "binomial")
+Weight_CB.Kit<-glm(Survival~YEAR+Weight+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+Weight_HL.Kit<-glm(Survival~YEAR+Weight+HL,data = SURVIVE_KITS, family = "binomial")
+Day_weight_Sex_CB.Kit<-glm(Survival~YEAR+Release_Date+Weight+SEX+CB_ANCESTRY, data = SURVIVE_KITS, family = "binomial")
+Day_weight_Sex_HL.Kit<-glm(Survival~YEAR+Release_Date+Weight+SEX+HL, data = SURVIVE_KITS, family = "binomial")
+Weight_sex_CB.Kit<-glm(Survival~YEAR+Weight+SEX+CB_ANCESTRY,data = SURVIVE_KITS, family = "binomial")
+Weight_sex_HL.Kit<-glm(Survival~YEAR+Weight+SEX+HL,data = SURVIVE_KITS, family = "binomial")
+Weight_CB_HL.Kit<-glm(Survival~YEAR+Weight+CB_ANCESTRY+HL,data = SURVIVE_KITS, family = "binomial")
+Day_Sex_CB_HL.Kit<-glm(Survival~YEAR+Release_Date+SEX+CB_ANCESTRY+HL, data = SURVIVE_KITS, family = "binomial")
+Weight_Sex_CB_HL.Kit<-glm(Survival~YEAR+Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_KITS, family = "binomial")
+Sex_CB_HL.Kit<-glm(Survival~YEAR+SEX+CB_ANCESTRY+HL, family = "binomial", data = SURVIVE_KITS)
+Sex_CB.Kit<-glm(Survival~YEAR+SEX+CB_ANCESTRY, family = "binomial", data = SURVIVE_KITS)
+Sex_HL.Kit<-glm(Survival~YEAR+SEX+HL, family = "binomial", data = SURVIVE_KITS)
+CB_HL.Kit<-glm(Survival~YEAR+CB_ANCESTRY+HL, data = SURVIVE_KITS, family = "binomial")
+Null.Kit<-glm(Survival~1, family = "binomial", data = SURVIVE_KITS)
+
+
+```
+
+```{r}
+Kit.All_exp_model.names=c("Full.Kit","Year.Kit","Day.Kit","Weight.Kit","Sex.Kit","CB.Kit","HL.Kit","Day_weight.Kit","Day_sex.Kit","Day_CB.Kit","Day_HL.Kit","Day_weight_sex.Kit","Day_weight_CB.Kit","Day_weight_HL.Kit","Day_sex_CB.Kit","Day_CB_HL.Kit","Day_Sex_HL.Kit","Weight_sex.Kit","Weight_CB.Kit","Weight_HL.Kit","Day_weight_Sex_CB.Kit","Day_weight_Sex_HL.Kit","Weight_sex_CB.Kit","Weight_sex_HL.Kit","Weight_CB_HL.Kit","Day_Sex_CB_HL.Kit","Weight_Sex_CB_HL.Kit","Sex_CB_HL.Kit","Sex_CB.Kit","Sex_HL.Kit","CB_HL.Kit","Null.Kit")
+
+Kit.All_exp_model.candlist=list(Full.Kit,Year.Kit,Day.Kit,Weight.Kit,Sex.Kit,CB.Kit,HL.Kit,Day_weight.Kit,Day_sex.Kit,Day_CB.Kit,Day_HL.Kit,Day_weight_sex.Kit,Day_weight_CB.Kit,Day_weight_HL.Kit,Day_sex_CB.Kit,Day_CB_HL.Kit,Day_Sex_HL.Kit,Weight_sex.Kit,Weight_CB.Kit,Weight_HL.Kit,Day_weight_Sex_CB.Kit,Day_weight_Sex_HL.Kit,Weight_sex_CB.Kit,Weight_sex_HL.Kit,Weight_CB_HL.Kit,Day_Sex_CB_HL.Kit,Weight_Sex_CB_HL.Kit,Sex_CB_HL.Kit,Sex_CB.Kit,Sex_HL.Kit,CB_HL.Kit,Null.Kit)
+
+aictab(cand.set=Kit.All_exp_model.candlist, modnames=Kit.All_exp_model.names, second.ord=TRUE, nobs=NULL, sort=TRUE)
+```
+
+
+```{r}
+Kit.No_weight_model.names=c("Year.Kit","Day.Kit","Sex.Kit","CB.Kit","HL.Kit","Day_sex.Kit","Day_CB.Kit","Day_HL.Kit","Day_sex_CB.Kit","Day_CB_HL.Kit","Day_Sex_HL.Kit","Day_Sex_CB_HL.Kit","Sex_CB_HL.Kit","Sex_CB.Kit","Sex_HL.Kit","CB_HL.Kit","Null.Kit")
+
+Kit.No_weight_model.candlist=list(Year.Kit,Day.Kit,Sex.Kit,CB.Kit,HL.Kit,Day_sex.Kit,Day_CB.Kit,Day_HL.Kit,Day_sex_CB.Kit,Day_CB_HL.Kit,Day_Sex_HL.Kit,Day_Sex_CB_HL.Kit,Sex_CB_HL.Kit,Sex_CB.Kit,Sex_HL.Kit,CB_HL.Kit,Null.Kit)
+
+aictab(cand.set=Kit.No_weight_model.candlist, modnames=Kit.No_weight_model.names, second.ord=TRUE, nobs=NULL, sort=TRUE)
+
+```
+
+
+```{r}
+#Confidence Intervals
+Kit.CImodel.names=c("Year.Kit","Day.Kit","Sex.Kit","CB.Kit","HL.Kit","Day_sex.Kit","Day_CB.Kit","Day_HL.Kit","Day_sex_CB.Kit","Day_CB_HL.Kit","Day_Sex_HL.Kit","Day_Sex_CB_HL.Kit","Sex_CB_HL.Kit","Sex_CB.Kit","Sex_HL.Kit","CB_HL.Kit","Null.Kit")
+
+Kit.CImodel.candlist=list(Year.Kit,Day.Kit,Sex.Kit,CB.Kit,HL.Kit,Day_sex.Kit,Day_CB.Kit,Day_HL.Kit,Day_sex_CB.Kit,Day_CB_HL.Kit,Day_Sex_HL.Kit,Day_Sex_CB_HL.Kit,Sex_CB_HL.Kit,Sex_CB.Kit,Sex_HL.Kit,CB_HL.Kit,Null.Kit)
+
+print(modavg(cand.set=Kit.CImodel.candlist, parm="Release_Date", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="SEXFemale", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="CB_ANCESTRY", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2012", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2013", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+#print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2014", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2015", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2016", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="HL", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+  print(modavg(cand.set=Kit.All_exp_model.candlist, parm="Weight", modnames = Kit.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+  print(modavg(cand.set=Kit.CImodel.candlist, parm="Release_Date", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="SEXFemale", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="CB_ANCESTRY", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2012", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2013", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+#print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2014", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2015", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="YEAR2016", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Kit.CImodel.candlist, parm="HL", modnames = Kit.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+  print(modavg(cand.set=Kit.All_exp_model.candlist, parm="Weight", modnames = Kit.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+```
+
+```{r}
+#Comparing the best model with weight and no weight
+
+anova(Day_HL.Kit, Day_weight_HL.Kit)
+summary(Day_HL.Kit)
+summary(Day_weight_HL.Kit)
+
+```
+
+```{r}
+print(kit_avg_weight<-mean(SURVIVE_KITS$Weight))
+print(kit_avg_day<-mean(SURVIVE_KITS$Release_Date))
+print(kit_avg_HL<-mean(SURVIVE_KITS$HL))
+summary(SURVIVE_KITS$Weight)
+summary(SURVIVE_KITS$Release_Date)
+summary(SURVIVE_KITS$HL)
+#summary(datareladultsCB$ReleaseDay)
+```
+
+```{r}
+library(rms)
+
+Day_weight_year_HL.Kit_lrm =lrm(Survival~YEAR+Release_Date + Weight+HL, data=SURVIVE_KITS)
+Day_weight_year_HL.Kit_lrm
+Day_weight_noyear_HL.Kit_lrm =lrm(Survival~Release_Date + Weight+HL, data=SURVIVE_KITS)
+Day_weight_noyear_HL.Kit_lrm
+
+WEIGHTPRED=Predict(Day_weight_year_HL.Kit_lrm, YEAR="2014", Weight=seq(70,670,10), Release_Date=180, HL=0.2209,fun=plogis)
+DAYPRED=Predict(Day_weight_year_HL.Kit_lrm, YEAR="2014", Weight=320, Release_Date=seq(105,315,10), HL=0.2209,fun=plogis)
+HLPRED=Predict(Day_weight_year_HL.Kit_lrm, YEAR="2014", HL=seq(0,0.75,0.01), Weight=320, Release_Date=180,fun=plogis)
+
+WEIGHTPREDxyr=Predict(Day_weight_noyear_HL.Kit_lrm,  Weight=seq(70,670,10), Release_Date=180, HL=0.2209,fun=plogis)
+DAYPREDxyr=Predict(Day_weight_noyear_HL.Kit_lrm,  Weight=320, Release_Date=seq(105,315,10), HL=0.2209,fun=plogis)
+HLPREDxyr=Predict(Day_weight_noyear_HL.Kit_lrm, Weight=320, Release_Date=180, HL=seq(0,0.75,0.01), fun=plogis)
+#ADDAYPRED=Predict(Day.adults14Survlrm, ReleaseDay=seq(70,320,10), fun=plogis)
+
+par(mfrow=c(1,3))
+plot(WEIGHTPRED, ylab="Juvenile Probability Winter Detection", xlab="Release Weight (g)", ylim=c(0,0.40), xlim=c(70,500),col="paleturquoise1")
+plot(DAYPRED, ylab="Juvenile Probability Winter Detection", xlab="Release Day", ylim=c(0,0.35), xlim=c(110,300), xaxt="n",col="paleturquoise1")
+plot(HLPREDxyr, ylab="Juvenile Probability Winter Detection", xlab="Homozygosity", ylim=c(0,0.40), xlim=c(0,0.70), xaxt="n",col="paleturquoise1")
+
+at <- seq(74,319, by=30)
+#plot(ADDAYPRED, ylab="Adult Probability Winter Detection", xlab="Release Day", xlim=c(74,319))
+plot(WEIGHTPREDxyr,col="paleturquoise1")
+plot(DAYPREDxyr,col="paleturquoise1")
+
+```
+
+Adult Survival Models
+Predictor variable:  Detection (# of years detected)
+Explanatory variable:  Day (Day of the year), Weight, Homozygosity by locus, Columbia Basin ancestry, Sex (1 male/2 female), Year Released
+```{r}
+SURVIVE_ADULTS<-read.table("./SURVIVORRHSIP-INFO-adults-NOMISSINGDATA.txt", sep = "\t", header = TRUE,na.strings=".")
+#Sex is a nominal variables that need to be labeled for the numerical outputs to be more easily understood
+source("./HighstatLibV10.R")
+SURVIVE_ADULTS$SEX<-factor(SURVIVE_ADULTS$Sex, levels = c(1,2), labels = c("Male", "Female"))
+#Convert ancestry to %s
+SURVIVE_ADULTS$CB_ANCESTRY<-(SURVIVE_ADULTS$CB_ANCESTRY*100)
+SURVIVE_ADULTS
+#Check for missing data
+Adult.NA<-SURVIVE_ADULTS
+colSums(sapply(Adult.NA, FUN=is.na))
+```
+
+
+```{r}
+SURVIVE_ADULTS$Survival<-SURVIVE_ADULTS$Detections
+SURVIVE_ADULTS$Survival[SURVIVE_ADULTS$Detections>0]<-1
+SURVIVE_ADULTS$Survival<-factor(SURVIVE_ADULTS$Survival, levels = c(0,1), labels = c("Not Detected", "Detected"))
+SURVIVE_ADULTS$CWeight<-SURVIVE_ADULTS$Weight-mean(SURVIVE_KITS$Weight)
+SURVIVE_ADULTS$YEAR<-as.factor(SURVIVE_ADULTS$RELEASE.YEAR)
+SURVIVE_ADULTS
+ADULTS2012<-subset(SURVIVE_ADULTS, YEAR=="2012")
+ADULTS2013<-subset(SURVIVE_ADULTS, YEAR=="2013")
+ADULTS2014<-subset(SURVIVE_ADULTS, YEAR=="2014")
+ADULTS2015<-subset(SURVIVE_ADULTS, YEAR=="2015")
+ADULTS2016<-subset(SURVIVE_ADULTS, YEAR=="2016")
+```
+
+```{r}
+library(AICcmodavg)
+####Weight x ReleaseDay Correlation Exploration#########
+plot(SURVIVE_ADULTS$Release.Date, SURVIVE_ADULTS$Weight, col="mediumslateblue",pch=19)
+cor(SURVIVE_ADULTS$Release.Date, SURVIVE_ADULTS$Weight, use="pairwise.complete.obs")
+tapply(SURVIVE_ADULTS$Weight, as.factor(SURVIVE_ADULTS$Release.Date), mean, na.rm=TRUE) #mean weight for each release day
+SURVIVE_ADULTS$AvgWeight=ave(SURVIVE_ADULTS$Weight[!is.na(SURVIVE_ADULTS$Weight)], as.factor(SURVIVE_ADULTS$Release.Date[!is.na(SURVIVE_ADULTS$Weight)]), FUN=mean, na.exclude=TRUE)
+#RELEASE DATE AND WEIGHT ARE NOT CORRELATED IN ADULT MODELS (0.291)
+```
+
+```{r}
+#plot(ADULTS2012$Weight,ADULTS2012$Release.Date, col="darkturquoise", xlim(100,700), ylim(40,330))
+#cor(ADULTS2012$Weight,ADULTS2012$Release.Date)
+#No Adults Released in 2012 that have weights associated with them
+cor(ADULTS2013$Weight,ADULTS2013$Release.Date, use="pairwise.complete.obs")
+plot(ADULTS2013$Weight~ADULTS2013$Release.Date,col="purple",pch=19)
+cor(ADULTS2014$Weight, ADULTS2014$Release.Date, use="pairwise.complete.obs")
+plot(ADULTS2014$Weight~ADULTS2014$Release.Date,col="mediumslateblue",pch=19)
+cor(ADULTS2015$Weight, ADULTS2015$Release.Date, use="pairwise.complete.obs")
+plot(ADULTS2015$Weight~ADULTS2015$Release.Date, col="deeppink",pch=19)
+cor(ADULTS2016$Weight,ADULTS2016$Release.Date, use="pairwise.complete.obs")
+plot(ADULTS2016$Weight~ADULTS2016$Release.Date,col="blueviolet",pch=19)
+cor(SURVIVE_ADULTS$Weight,SURVIVE_ADULTS$Release.Date, use = "pairwise.complete.obs")
+col.topo<-topo.colors(4)
+palette(col.topo)
+plot(SURVIVE_ADULTS$Weight~SURVIVE_ADULTS$Release.Date, col=c("mediumspringgreen","mediumslateblue","deeppink","royalblue1"), pch=19, xlab="Release Date", ylab = "Release Weight")
+legend("bottomleft",legend = c("2013","2014","2015","2016"), fill = c("mediumspringgreen","mediumslateblue","deeppink","royalblue1"))
+#2014 has the most data (lightblue) followed by 2015 (green)
+```
+
+```{r}
+SURVIVE_ADULTS$Sex<-as.factor(SURVIVE_ADULTS$Sex)
+Adult.glm6<-glm(Survival~Sex+CB_ANCESTRY+Release.Date+Weight+HL, family = binomial, data = SURVIVE_ADULTS)
+summary(Adult.glm6)
+drop1(Adult.glm6, test = "Chi")
+anova(Adult.glm6)
+```
+
+```{r}
+#Models - Adults - With all explantory variables.  Year is not included since the majority of samples are in 2014 and skews the year variable.
+#32 total models if we keep release date and weight as independent variables
+Full.Adult<-glm(Survival~Release.Date+Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_ADULTS, family = "binomial")
+Day.Adult<-glm(Survival~Release.Date,data = SURVIVE_ADULTS, family = "binomial")
+Weight.Adult<-glm(Survival~Weight,data = SURVIVE_ADULTS, family = "binomial")
+Sex.Adult<-glm(Survival~SEX,data = SURVIVE_ADULTS, family = "binomial")
+CB.Adult<-glm(Survival~CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+HL.Adult<-glm(Survival~HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_weight.Adult<-glm(Survival~Release.Date+Weight,data = SURVIVE_ADULTS, family = "binomial")
+Day_sex.Adult<-glm(Survival~Release.Date+SEX,data = SURVIVE_ADULTS, family = "binomial")
+Day_CB.Adult<-glm(Survival~Release.Date+CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+Day_HL.Adult<-glm(Survival~Release.Date+HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_weight_sex.Adult<-glm(Survival~Release.Date+Weight+SEX,data = SURVIVE_ADULTS, family = "binomial")
+Day_weight_CB.Adult<-glm(Survival~Release.Date+Weight+CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+Day_weight_HL.Adult<-glm(Survival~Release.Date+Weight+HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_sex_CB.Adult<-glm(Survival~Release.Date+SEX+CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+Day_CB_HL.Adult<-glm(Survival~Release.Date+CB_ANCESTRY+HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_Sex_HL.Adult<-glm(Survival~Release.Date+SEX+HL,data = SURVIVE_ADULTS, family = "binomial")
+Weight_sex.Adult<-glm(Survival~Weight+SEX,data = SURVIVE_ADULTS, family = "binomial")
+Weight_CB.Adult<-glm(Survival~Weight+CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+Weight_HL.Adult<-glm(Survival~Weight+HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_weight_Sex_CB.Adult<-glm(Survival~Release.Date+Weight+SEX+CB_ANCESTRY, data = SURVIVE_ADULTS, family = "binomial")
+Day_weight_Sex_HL.Adult<-glm(Survival~Release.Date+Weight+SEX+HL, data = SURVIVE_ADULTS, family = "binomial")
+Weight_sex_CB.Adult<-glm(Survival~Weight+SEX+CB_ANCESTRY,data = SURVIVE_ADULTS, family = "binomial")
+Weight_sex_HL.Adult<-glm(Survival~Weight+SEX+HL,data = SURVIVE_ADULTS, family = "binomial")
+Weight_CB_HL.Adult<-glm(Survival~Weight+CB_ANCESTRY+HL,data = SURVIVE_ADULTS, family = "binomial")
+Day_Sex_CB_HL.Adult<-glm(Survival~Release.Date+SEX+CB_ANCESTRY+HL, data = SURVIVE_ADULTS, family = "binomial")
+Weight_Sex_CB_HL.Adult<-glm(Survival~Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_ADULTS, family = "binomial")
+Sex_CB_HL.Adult<-glm(Survival~SEX+CB_ANCESTRY+HL, family = "binomial", data = SURVIVE_ADULTS)
+Sex_CB.Adult<-glm(Survival~SEX+CB_ANCESTRY, family = "binomial", data = SURVIVE_ADULTS)
+Sex_HL.Adult<-glm(Survival~SEX+HL, family = "binomial", data = SURVIVE_ADULTS)
+CB_HL.Adult<-glm(Survival~CB_ANCESTRY+HL, data = SURVIVE_ADULTS, family = "binomial")
+Null.Adult<-glm(Survival~1, family = "binomial", data = SURVIVE_ADULTS)
+
+
+```
+
+```{r}
+Adult.All_exp_model.names=c("Full.Adult","Day.Adult","Weight.Adult","Sex.Adult","CB.Adult","HL.Adult","Day_weight.Adult","Day_sex.Adult","Day_CB.Adult","Day_HL.Adult","Day_weight_sex.Adult","Day_weight_CB.Adult","Day_weight_HL.Adult","Day_sex_CB.Adult","Day_CB_HL.Adult","Day_Sex_HL.Adult","Weight_sex.Adult","Weight_CB.Adult","Weight_HL.Adult","Day_weight_Sex_CB.Adult","Day_weight_Sex_HL.Adult","Weight_sex_CB.Adult","Weight_sex_HL.Adult","Weight_CB_HL.Adult","Day_Sex_CB_HL.Adult","Weight_Sex_CB_HL.Adult","Sex_CB_HL.Adult","Sex_CB.Adult","Sex_HL.Adult","CB_HL.Adult","Null.Adult")
+
+Adult.All_exp_model.candlist=list(Full.Adult,Day.Adult,Weight.Adult,Sex.Adult,CB.Adult,HL.Adult,Day_weight.Adult,Day_sex.Adult,Day_CB.Adult,Day_HL.Adult,Day_weight_sex.Adult,Day_weight_CB.Adult,Day_weight_HL.Adult,Day_sex_CB.Adult,Day_CB_HL.Adult,Day_Sex_HL.Adult,Weight_sex.Adult,Weight_CB.Adult,Weight_HL.Adult,Day_weight_Sex_CB.Adult,Day_weight_Sex_HL.Adult,Weight_sex_CB.Adult,Weight_sex_HL.Adult,Weight_CB_HL.Adult,Day_Sex_CB_HL.Adult,Weight_Sex_CB_HL.Adult,Sex_CB_HL.Adult,Sex_CB.Adult,Sex_HL.Adult,CB_HL.Adult,Null.Adult)
+
+aictab(cand.set=Adult.All_exp_model.candlist, modnames=Adult.All_exp_model.names, second.ord=TRUE, nobs=NULL, sort=TRUE)
+```
+
+
+```{r}
+Adult.Day_incl_model.names=c("Day.Adult","Day_sex.Adult","Day_CB.Adult","Day_HL.Adult","Day_weight.Adult","Day_sex_CB.Adult","Day_sex_HL.Adult","Day_sex_weight.Adult","Day_CB_HL.Adult","Day_CB_weight.Adult","Day_HL_weight.Adult","Day_sex_CB_HL.Adult","Day_sex_CB_weight.Adult","Full.Adult","Null.Adult")
+
+Adult.Day_incl_model.candlist=list(Day.Adult,Day_sex.Adult,Day_CB.Adult,Day_HL.Adult,Day_weight.Adult,Day_sex_CB.Adult,Day_Sex_HL.Adult,Day_weight_sex.Adult,Day_CB_HL.Adult, Day_weight_CB.Adult,Day_weight_HL.Adult,Day_Sex_CB_HL.Adult, Day_weight_Sex_CB.Adult,Full.Adult, Null.Adult)
+
+aictab(cand.set=Adult.Day_incl_model.candlist, modnames=Adult.Day_incl_model.names, second.ord=TRUE, nobs=NULL, sort=TRUE)
+
+```
+
+
+```{r}
+#Confidence Intervals
+Adult.CImodel.names=c("Day.Adult","Day_sex.Adult","Day_CB.Adult","Day_HL.Adult","Day_weight.Adult","Day_sex_CB.Adult","Day_sex_HL.Adult","Day_sex_weight.Adult","Day_CB_HL.Adult","Day_CB_weight.Adult","Day_HL_weight.Adult","Day_sex_CB_HL.Adult","Day_sex_CB_weight.Adult","Full.Adult","Null.Adult")
+
+Adult.CImodel.candlist=list(Day.Adult,Day_sex.Adult,Day_CB.Adult,Day_HL.Adult,Day_weight.Adult,Day_sex_CB.Adult,Day_Sex_HL.Adult,Day_weight_sex.Adult,Day_CB_HL.Adult, Day_weight_CB.Adult,Day_weight_HL.Adult,Day_Sex_CB_HL.Adult, Day_weight_Sex_CB.Adult,Full.Adult, Null.Adult)
+
+print(modavg(cand.set=Adult.CImodel.candlist, parm="Release.Date", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="SEXFemale", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="CB_ANCESTRY", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="HL", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.All_exp_model.candlist, parm="Weight", modnames = Adult.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="Release.Date", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="SEXFemale", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="CB_ANCESTRY", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Adult.CImodel.candlist, parm="HL", modnames = Adult.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+  print(modavg(cand.set=Adult.All_exp_model.candlist, parm="Weight", modnames = Adult.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+
+#Release Day is the only thing that doesn't overlap 0 at the 85% and 95% confidence interval
+  
+  
+```
+
+
+
+```{r}
+print(kit_avg_weight<-mean(SURVIVE_ADULTS$Weight))
+print(kit_avg_day<-mean(SURVIVE_ADULTS$Release.Date))
+print(kit_avg_HL<-mean(SURVIVE_ADULTS$HL))
+summary(SURVIVE_ADULTS$Weight)
+summary(SURVIVE_ADULTS$Release.Date)
+summary(SURVIVE_ADULTS$HL)
+```
+
+```{r}
+library(rms)
+Day.adult.glm<-glm(Survival~Release.Date, data = SURVIVE_ADULTS, family = "binomial")
+Day.adults.lrm=lrm(Survival~Release.Date, data=SURVIVE_ADULTS)
+Adult_Day_Pred<-Predict(Day.adults.lrm, Release.Date=seq(40,325,10), fun=plogis)
+
+par(mfrow=c(1,3))
+at <- seq(74,319, by=30)
+plot(Adult_Day_Pred, ylab="Adult Probability Winter Detection", xlab="Release Day", xlim=c(40,300),col="paleturquoise1")
+
+```
+
+
+```{r}
+####Release Pen Survival Models
+SURVIVE_RLS<-read.table("./SURVIVORSHIP-RELEASEPENS.txt", sep = "\t", header = TRUE)
+#Sex is a nominal variables that need to be labeled for the numerical outputs to be more easily understood
+source("./HighstatLibV10.R")
+SURVIVE_RLS$SEX<-factor(SURVIVE_RLS$Sex, levels = c(0,1), labels = c("Male", "Female"))
+#Convert ancestry to %s
+SURVIVE_RLS$CB_ANCESTRY<-(SURVIVE_RLS$CB_ANCESTRY*100)
+SURVIVE_RLS
+#Check for missing data
+Rls.NA<-SURVIVE_RLS
+colSums(sapply(Rls.NA, FUN=is.na))
+```
+
+```{r}
+SURVIVE_RLS$Survival<-SURVIVE_RLS$DETECTION
+SURVIVE_RLS$Survival[SURVIVE_RLS$Detections>0]<-1
+SURVIVE_RLS$Survival<-factor(SURVIVE_RLS$Survival, levels = c(0,1), labels = c("Not Detected", "Detected"))
+SURVIVE_RLS$YEAR<-as.factor(SURVIVE_RLS$Year)
+SURVIVE_RLS
+RLS2018<-subset(SURVIVE_RLS, YEAR=="2018")
+RLS2019<-subset(SURVIVE_RLS, YEAR=="2019")
+```
+
+```{r}
+library(AICcmodavg)
+####Weight x ReleaseDay Correlation Exploration#########
+plot(SURVIVE_RLS$Release_Day~SURVIVE_RLS$Weight,pch=19, xlab = "Release Day", ylab = "Release Weight", col=c("mediumslateblue","deeppink"))
+cor(SURVIVE_RLS$Release_Day, SURVIVE_RLS$Weight, use="pairwise.complete.obs")
+legend("bottomright", legend = c("2018", "2019"), fill = c("mediumslateblue","deeppink"))
+tapply(SURVIVE_RLS$Weight, as.factor(SURVIVE_RLS$Release_Day), mean, na.rm=TRUE) #mean weight for each release day
+SURVIVE_RLS$AvgWeight=ave(SURVIVE_RLS$Weight[!is.na(SURVIVE_RLS$Weight)], as.factor(SURVIVE_RLS$Release_Day[!is.na(SURVIVE_RLS$Weight)]), FUN=mean, na.exclude=TRUE)
+#Check for correlation each year rather than overall
+cor(RLS2018$Weight,RLS2018$Release_Day, use="pairwise.complete.obs")
+plot(RLS2018$Weight~RLS2018$Release_Day,col="mediumslateblue",pch=19)
+legend("bottomright", legend = c("2018"), fill = c("mediumslateblue"))
+cor(RLS2019$Weight,RLS2019$Release_Day, use="pairwise.complete.obs")
+plot(RLS2019$Weight~RLS2019$Release_Day,col="deeppink",pch=19)
+legend("bottomright", legend = c("2019"), fill = c("deeppink"))
+cor(SURVIVE_RLS$Weight,SURVIVE_RLS$Release_Day, use = "pairwise.complete.obs")
+#Release Day and Weight are correlated (0.588) in the overall model.  Highly correlated in 2018 (0.724) and not correlated in 2019 (0.336).  Since we are not going to use Year, we can use the overall value.
+```
+
+
+```{r}
+#Models - Release Pens - With all explantory variables.  Year is not included because there are only 2 years to compare
+#32 total models if we keep release date and weight as independent variables
+Full.Rls<-glm(Survival~Release_Day+Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_RLS, family = "binomial")
+Day.Rls<-glm(Survival~Release_Day,data = SURVIVE_RLS, family = "binomial")
+Weight.Rls<-glm(Survival~Weight,data = SURVIVE_RLS, family = "binomial")
+Sex.Rls<-glm(Survival~SEX,data = SURVIVE_RLS, family = "binomial")
+CB.Rls<-glm(Survival~CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+HL.Rls<-glm(Survival~HL,data = SURVIVE_RLS, family = "binomial")
+Day_weight.Rls<-glm(Survival~Release_Day+Weight,data = SURVIVE_RLS, family = "binomial")
+Day_sex.Rls<-glm(Survival~Release_Day+SEX,data = SURVIVE_RLS, family = "binomial")
+Day_CB.Rls<-glm(Survival~Release_Day+CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+Day_HL.Rls<-glm(Survival~Release_Day+HL,data = SURVIVE_RLS, family = "binomial")
+Day_weight_sex.Rls<-glm(Survival~Release_Day+Weight+SEX,data = SURVIVE_RLS, family = "binomial")
+Day_weight_CB.Rls<-glm(Survival~Release_Day+Weight+CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+Day_weight_HL.Rls<-glm(Survival~Release_Day+Weight+HL,data = SURVIVE_RLS, family = "binomial")
+Day_sex_CB.Rls<-glm(Survival~Release_Day+SEX+CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+Day_CB_HL.Rls<-glm(Survival~Release_Day+CB_ANCESTRY+HL,data = SURVIVE_RLS, family = "binomial")
+Day_Sex_HL.Rls<-glm(Survival~Release_Day+SEX+HL,data = SURVIVE_RLS, family = "binomial")
+Weight_sex.Rls<-glm(Survival~Weight+SEX,data = SURVIVE_RLS, family = "binomial")
+Weight_CB.Rls<-glm(Survival~Weight+CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+Weight_HL.Rls<-glm(Survival~Weight+HL,data = SURVIVE_RLS, family = "binomial")
+Day_weight_Sex_CB.Rls<-glm(Survival~Release_Day+Weight+SEX+CB_ANCESTRY, data = SURVIVE_RLS, family = "binomial")
+Day_weight_Sex_HL.Rls<-glm(Survival~Release_Day+Weight+SEX+HL, data = SURVIVE_RLS, family = "binomial")
+Weight_sex_CB.Rls<-glm(Survival~Weight+SEX+CB_ANCESTRY,data = SURVIVE_RLS, family = "binomial")
+Weight_sex_HL.Rls<-glm(Survival~Weight+SEX+HL,data = SURVIVE_RLS, family = "binomial")
+Weight_CB_HL.Rls<-glm(Survival~Weight+CB_ANCESTRY+HL,data = SURVIVE_RLS, family = "binomial")
+Day_Sex_CB_HL.Rls<-glm(Survival~Release_Day+SEX+CB_ANCESTRY+HL, data = SURVIVE_RLS, family = "binomial")
+Weight_Sex_CB_HL.Rls<-glm(Survival~Weight+SEX+CB_ANCESTRY+HL, data = SURVIVE_RLS, family = "binomial")
+Sex_CB_HL.Rls<-glm(Survival~SEX+CB_ANCESTRY+HL, family = "binomial", data = SURVIVE_RLS)
+Sex_CB.Rls<-glm(Survival~SEX+CB_ANCESTRY, family = "binomial", data = SURVIVE_RLS)
+Sex_HL.Rls<-glm(Survival~SEX+HL, family = "binomial", data = SURVIVE_RLS)
+CB_HL.Rls<-glm(Survival~CB_ANCESTRY+HL, data = SURVIVE_RLS, family = "binomial")
+Null.Rls<-glm(Survival~1, family = "binomial", data = SURVIVE_RLS)
+
+```
+
+
+```{r}
+Rls.All_exp_model.names=c("Full.Rls","Day.Rls","Weight.Rls","Sex.Rls","CB.Rls","HL.Rls","Day_weight.Rls","Day_sex.Rls","Day_CB.Rls","Day_HL.Rls","Day_weight_sex.Rls","Day_weight_CB.Rls","Day_weight_HL.Rls","Day_sex_CB.Rls","Day_CB_HL.Rls","Day_Sex_HL.Rls","Weight_sex.Rls","Weight_CB.Rls","Weight_HL.Rls","Day_weight_Sex_CB.Rls","Day_weight_Sex_HL.Rls","Weight_sex_CB.Rls","Weight_sex_HL.Rls","Weight_CB_HL.Rls","Day_Sex_CB_HL.Rls","Weight_Sex_CB_HL.Rls","Sex_CB_HL.Rls","Sex_CB.Rls","Sex_HL.Rls","CB_HL.Rls","Null.Rls")
+
+Rls.All_exp_model.candlist=list(Full.Rls,Day.Rls,Weight.Rls,Sex.Rls,CB.Rls,HL.Rls,Day_weight.Rls,Day_sex.Rls,Day_CB.Rls,Day_HL.Rls,Day_weight_sex.Rls,Day_weight_CB.Rls,Day_weight_HL.Rls,Day_sex_CB.Rls,Day_CB_HL.Rls,Day_Sex_HL.Rls,Weight_sex.Rls,Weight_CB.Rls,Weight_HL.Rls,Day_weight_Sex_CB.Rls,Day_weight_Sex_HL.Rls,Weight_sex_CB.Rls,Weight_sex_HL.Rls,Weight_CB_HL.Rls,Day_Sex_CB_HL.Rls,Weight_Sex_CB_HL.Rls,Sex_CB_HL.Rls,Sex_CB.Rls,Sex_HL.Rls,CB_HL.Rls,Null.Rls)
+
+aictab(cand.set=Rls.All_exp_model.candlist, modnames=Rls.All_exp_model.names, second.ord=TRUE, nobs=NULL, sort=TRUE)
+
+```
+
+
+
+```{r}
+#Confidence Intervals
+Rls.CImodel.names=c("Day.Rls","Day_sex.Rls","Day_CB.Rls","Day_HL.Rls","Day_weight.Rls","Day_sex_CB.Rls","Day_sex_HL.Rls","Day_sex_weight.Rls","Day_CB_HL.Rls","Day_CB_weight.Rls","Day_HL_weight.Rls","Day_sex_CB_HL.Rls","Day_sex_CB_weight.Rls","Full.Rls","Null.Rls")
+
+Rls.CImodel.candlist=list(Day.Rls,Day_sex.Rls,Day_CB.Rls,Day_HL.Rls,Day_weight.Rls,Day_sex_CB.Rls,Day_Sex_HL.Rls,Day_weight_sex.Rls,Day_CB_HL.Rls, Day_weight_CB.Rls,Day_weight_HL.Rls,Day_Sex_CB_HL.Rls, Day_weight_Sex_CB.Rls,Full.Rls, Null.Rls)
+
+print(modavg(cand.set=Rls.CImodel.candlist, parm="Release_Day", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="SEXFemale", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="CB_ANCESTRY", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="HL", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.85, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.All_exp_model.candlist, parm="Weight", modnames = Rls.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="Release_Day", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="SEXFemale", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="CB_ANCESTRY", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+print(modavg(cand.set=Rls.CImodel.candlist, parm="HL", modnames = Rls.CImodel.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+  print(modavg(cand.set=Rls.All_exp_model.candlist, parm="Weight", modnames = Rls.All_exp_model.names, second.ord =TRUE, nobs = NULL, uncond.se = "revised", conf.level = 0.95, warn = TRUE), digits=4)
+
+#Release Day is the only thing that doesn't overlap 0 at the 85% and 95% confidence interval
+
+  
+  
+```
+
+
+
+```{r}
+print(rls_avg_weight<-mean(SURVIVE_RLS$Weight))
+print(rls_avg_day<-mean(SURVIVE_RLS$Release_Day))
+print(rls_avg_HL<-mean(SURVIVE_RLS$HL))
+summary(SURVIVE_RLS$Weight)
+summary(SURVIVE_RLS$Release_Day)
+summary(SURVIVE_RLS$HL)
+```
+
+```{r}
+library(rms)
+Day.rls.glm<-glm(Survival~Release_Day, data = SURVIVE_RLS, family = "binomial")
+Day.rls.lrm=lrm(Survival~Release_Day, data=SURVIVE_RLS)
+Rls_Day_Pred<-Predict(Day.rls.lrm, Release_Day=seq(135,225,10), fun=plogis)
+
+par(mfrow=c(1,3))
+at <- seq(135,225, by=5)
+plot(Rls_Day_Pred, ylab="Release Pen Probability Winter Detection", xlab="Release Day", xlim=c(135,220),col="paleturquoise1")
+
+  
+```
+
+
+
+```{r}
+library(ggpubr)
+library(ggplot2)
+RP1=ggplot(Rls_Day_Pred)
+RP2=RP1+ theme_classic()+
+  xlab("Release Day")+
+  ylab("Apparent Survival")+
+  coord_cartesian(xlim=c(140,220))+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+ggsave(filename = "./RP1.png",
+       plot = RP2,
+       width = 8,
+       height=4,
+       dpi = 600)
+AD1=ggplot(Adult_Day_Pred)
+AD2=AD1+ theme_classic()+
+  xlab("Release Day")+
+  ylab("Apparent Survival")+
+  coord_cartesian(xlim=c(60,300))+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+ggsave(filename = "./AD1.png",
+       plot = AD2,
+       width = 8,
+       height=4,
+       dpi = 600)
+KD=ggplot(DAYPRED)
+KD2=KD+ theme_classic()+
+  xlab("Release Day")+
+  ylab("Apparent Survival")+
+  coord_cartesian(xlim=c(120,300))+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+ggsave(filename = "./KD.png",
+       plot = KD2,
+       width = 8,
+       height=4,
+       dpi = 600)
+KW=ggplot(WEIGHTPRED)
+KW2=KW+ theme_classic()+
+  xlab("Release Weight (g)")+
+  ylab("Apparent Survival")+
+  coord_cartesian(xlim=c(80,500))+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+ggsave(filename = "./KW.png",
+       plot = KW2,
+       width = 8,
+       height=4,
+       dpi = 600)
+KH=ggplot(HLPRED)
+KH2=KH+ theme_classic()+
+  xlab("Homozygosity")+
+  ylab("Apparent Survival")+
+  coord_cartesian(xlim=c(0.1,0.7))+
+  theme(axis.text = element_text(size=12), axis.title = element_text(size = 12, face = "bold"))
+ggsave(filename = "./KH.png",
+       plot = KH2,
+       width = 8,
+       height=4,
+       dpi = 600)
+Surv_Fig=ggarrange(KW2, KD2, KH2, AD2, RP2, common.legend = F, ncol = 2, nrow = 3, labels = (c("a)","b)","c)","d)","e)")))
+Surv_Fig
+ggsave(filename = "./SurvivFig.png",
+       plot = Surv_Fig,
+       width = 8,
+       height=8,
+       dpi = 600)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+###Data Exploration of Kit Data to Determine if it meets assumptions.  Also models using the drop1 command
 ```{r}
 # Checking for Outliers
 op<-par(mfrow=c(4,2), mar=c(3,3,3,1))
@@ -35,8 +609,7 @@ dotchart(SURVIVE_KITS$Release_Date, main = "Release Date", color = "darkblue")
 dotchart(SURVIVE_KITS$Weight, main = "Release Weight", color = "blueviolet")
 dotchart(SURVIVE_KITS$CB_ANCESTRY, main = "Columbia Basin Ancestry", color = "darkturquoise")
 dotchart(SURVIVE_KITS$HL, main = "Homozyogsity by Locus", color = "mediumslateblue")
-dotchart(SURVIVE_KITS$Survival, main = "Detection", color = "deeppink")
-dotchart(SURVIVE_KITS$RELEASE_YEAR, main = "Release Year", color = "cyan4")
+hist(SURVIVE_KITS$RELEASE_YEAR, main = "Release Year", color = "cyan4")
 dotchart(SURVIVE_KITS$CWeight, main = "Weight-Centered", color = "purple4")
 par(op)
 ```
